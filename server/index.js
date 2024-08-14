@@ -25,12 +25,19 @@ io.on("connection", (socket) => {
   socket.on("chat message", (pay) => {
     console.log('message received')
     console.log("message: " + pay);
+    
+    // broadcast across all clients
+    io.sockets.emit('chat message','all can see ['+pay+']')
+
+    // broadcast to all client except your own 
+    socket.broadcast.emit('chat message','you  can see ['+pay+'] but not the sender')
   });
+  
 
   // disconnect
-//   socket.on("disconnect", () => {
-//     console.log("User-disconnected");
-//   });
+  socket.on("disconnect", () => {
+    console.log("User-disconnected");
+  });
 });
 
 server.listen(PORT, () => {
