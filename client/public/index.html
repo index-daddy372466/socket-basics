@@ -20,86 +20,26 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
     }
-    ul#chats {
-      height: 100%;
-      width: 100%;
-      border: 3px solid purple;
-      background: #fff;
+    #login{
+      display:flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap:1rem;
     }
-    .list-item{
-      width:100%;
-      border:3px solid #000;
+    input{
       text-align: center;
-      font-size:18px;
-      list-style: none;
     }
-    form#form {
-      width: 100%;
-      border: 3px solid lime;
-      display: flex;
-    }
-    input {
-      height: 50px;
-      border: 3px solid #000;
-    }
-    #text {
-      width: 100%;
-      text-align: center;
-      font-size: 18px;
-    }
-    #submit {
-      width: 150px;
-      transition: 0.5s;
-    }
-    #submit:hover {
-      border: 3px solid #fff;
-      background: #000;
-      color: #fff;
-      transition: 0.25s;
-      cursor: pointer;
-    }
+
   </style>
   <body>
-    <!-- chatbox -->
-    <ul id="chats" class="messages"></ul>
-
-    <!-- form (chat & send chat) -->
-    <form action="" id="form">
-      <input type="text" id="text" />
-      <input type="submit" id="submit" />
+    <h1>Login</h1>
+    <form action="/profile" method="POST" id="login">
+        <input type="text" name="username" class="login-info">
+        <input type="password" name="password" class="login-info" >
+        <input type="submit" onclick="(e)=>e.preventDefault()">
     </form>
-
-    <!-- inject clientside io -->
-     <script src="/socket.io/socket.io.js"></script>
-     <script>
-        let socket = io();
-        
-
-        // declare form & text-input
-        let form = document.getElementById('form')
-        let text = document.getElementById('text')
-        let submit = document.getElementById('submit')
-        let chatbox = document.getElementById('chats')
-
-        // submit onclick
-        submit.onclick=e=>{
-            e.preventDefault();
-            if(text.value){
-                socket.emit('chat message',text.value);
-                text.value = ''
-            }
-        }
-        // append li to chatbox
-        socket.on('chat message',msg => {
-          console.log(msg)
-          let li = document.createElement('li')
-          li.classList.add('list-item')
-          li.textContent = msg;
-          chatbox.appendChild (li)
-        })
-
-     </script>
   </body>
 </html>
