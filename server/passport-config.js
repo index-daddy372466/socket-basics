@@ -41,11 +41,13 @@ function initialize(passport){
             done(null, false, { message: "user not found" });
           }
           else if (user.password !== password) {
+            console.log('wrong password')
             done(null, false, { message: "wrong password" });
           }
         else{
           user.password = crypto.hash('sha1',password)
           const payload = { id: user.id, name: user.name, password:user.password };
+          console.log('login success')
           done(null, payload);
         }
          

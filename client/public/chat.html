@@ -27,6 +27,11 @@
       width: 100%;
       border: 3px solid purple;
       background: #fff;
+      display:flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      gap:1rem;
     }
     .list-item{
       width:100%;
@@ -92,11 +97,11 @@
             }
         }
         // append li to chatbox
-        socket.on('chat message',msg => {
+        socket.on('chat message',(msg,name) => {
           console.log(msg)
           let li = document.createElement('li')
           li.classList.add('list-item')
-          li.textContent = msg;
+          li.textContent = msg + `[${name}]`;
           chatbox.appendChild (li)
         })
 
