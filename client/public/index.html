@@ -22,24 +22,29 @@
       align-items: center;
       justify-content: center;
     }
-    #login{
-      display:flex;
+    #login {
+      display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap:1rem;
+      gap: 1rem;
     }
-    input{
+    input {
       text-align: center;
     }
-
   </style>
   <body>
     <h1>Login</h1>
     <form action="/profile" method="POST" id="login">
-        <input type="text" name="username" class="login-info">
-        <input type="password" name="password" class="login-info" >
-        <input type="submit" onclick="(e)=>e.preventDefault()">
+      <input type="text" name="username" class="login-info" />
+      <input type="password" name="password" class="login-info" />
+      <input type="submit" onclick="(e)=>e.preventDefault()" />
     </form>
+    <script>
+      const username = document.querySelector("input[type=text]");
+      window.onload = e => {
+        username.focus()
+      }
+    </script>
   </body>
 </html>
