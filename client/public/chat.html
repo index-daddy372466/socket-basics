@@ -41,12 +41,28 @@
       font-size:18px;
       list-style: none;
       padding:0 1rem;
+      opacity:0;
+      transition:.5s;
+      animation:appear .5s forwards;
     }
+    @keyframes appear {
+      from{
+        opacity:0;
+      }
+      to{
+        opacity:1;
+      }
+    }
+
     .right{
       text-align: end;
+      color:#000;
+      background:lightblue;
     }
     .left{
       text-align: start;
+      color:#fff;
+      background:darkblue;
     }
     form#form {
       width: 100%;
@@ -88,8 +104,7 @@
      <script src="/socket.io/socket.io.js"></script>
      <script>
         let socket = io();
-        
-
+      
         // declare form & text-input
         let form = document.getElementById('form')
         let text = document.getElementById('text')
@@ -100,7 +115,19 @@
         console.log('chatbox ' + 'scrollHeight')
         console.log(chatbox.scrollHeight)
       }
-        let sameUser = false; // verify if the sender if you
+      const appendMessage = (bool,chatbox,li) => {
+        if(!bool){
+          setTimeout(()=>{
+            chatbox.appendChild(li)
+            chatbox.scrollTo(0,chatbox.clientHeight)
+          },500)
+        }
+        else{
+          chatbox.appendChild(li)
+          chatbox.scrollTo(0,chatbox.clientHeight)
+        }
+      }
+        let sameSender = false; // verify if the sender if you
         // submit onclick
         submit.onclick=e=>{
           console.log('scrollHeight')
@@ -121,9 +148,9 @@
           li.classList.add('list-item')
           // once the li is created, text-align start/end based off of receiver/sender respectively
           !sameSender ? li.classList.add('left') : li.classList.add('right')
+          li.textContent = `${msg} [${name}]`;
+            appendMessage(sameSender,chatbox,li)
           sameSender = false;
-          li.textContent = msg + `[${name}]`;
-          chatbox.appendChild(li)
         })
 
      </script>

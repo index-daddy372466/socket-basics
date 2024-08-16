@@ -39,6 +39,9 @@ function initialize(passport){
         session: true,
       },
       (username, password, done) => {
+        console.log(username)
+        console.log(password)
+        console.log(Users)
         // authentication method
         try {
         const user = getUserByName(username);
@@ -73,5 +76,5 @@ function initialize(passport){
     done(null, userObj);
   });
 };
-
 module.exports = initialize
+

@@ -13,6 +13,7 @@ const express = require("express"),
   session = require("express-session"),
   cookieParser = require("cookie-parser");
 const MemoryStore = require("memorystore")(session);
+const { setMaxListeners } = require("events");
 const socketIoStart = require('./socketio.js')
 
 const checkAuthenticated = (req, res, next) => {
@@ -51,9 +52,11 @@ initializePassport(passport);
 // app.use(express.static("client/public"));
 app.use(express.json());
 app.use(cookieParser());
-app.use((req, res, next) => {
-  next();
-});
+// app.use((req, res, next) => {
+
+//   next();
+// });
+setMaxListeners(20)
 app.use(sessionMiddleware);
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
@@ -93,9 +96,15 @@ app.route("/chat").get(checkAuthenticated, (req, res) => {
 
 // logout GET
 app.get("/logout", checkAuthenticated, (req, res) => {
+  console.log(req.user)
+  // io.on('connection',socket=>{
+  //   // disconnect the socket without closing the underlying connection 
+  //   socket.disconnect()
+  // })
   req.logout(() => {
     res.redirect("/");
   });
+  console.log(req.user)
 });
 
 socketIoStart(io);
