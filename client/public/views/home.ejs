@@ -66,18 +66,18 @@
       justify-content: start;
       gap: 1rem;
     }
-    .align-li{
-      text-align:center;
-      cursor:pointer;
-      list-style:none;
-      transition:.5s;
-      padding:.5rem;
-      border-radius:12px;
+    .align-li {
+      text-align: center;
+      cursor: crosshair;
+      list-style: none;
+      transition: 0.5s;
+      padding: 0.5rem;
+      border-radius: 12px;
     }
-    .align-li:hover{
-      transition:.25s;
-      color:#fff;
-      background:#000;
+    .align-li:hover {
+      transition: 0.25s;
+      color: #fff;
+      background: #000;
     }
     #form > #text-input {
       padding: 0.25rem;
@@ -106,12 +106,12 @@
       -webkit-filter: drop-shadow(1px 3px 1.5px rgb(0, 0, 0));
       outline: none;
     }
-    #intake{ 
-      width:100%;
-      height:100%;
-      display:flex;
+    #intake {
+      width: 100%;
+      height: 100%;
+      display: flex;
       flex-direction: column;
-      align-items:center;
+      align-items: center;
       justify-content: center;
     }
     #form > button:hover {
@@ -125,13 +125,11 @@
     <div id="container">
       <div id="tile1" class="tile"></div>
       <div id="tile2" class="tile">
-        <ul id="intake">
-
-        </ul>
+        <ul id="intake"></ul>
       </div>
       <div id="tile3" class="tile">
         <div class="parent">
-          <h1 style="text-align: center;">Create a Room</h1>
+          <h1 style="text-align: center">Create a Room</h1>
         </div>
         <form action="/create/room" method="POST" id="form">
           <input
@@ -147,7 +145,9 @@
     </div>
 
     <script>
+      let intake = document.getElementById("intake");
       let tiles = document.querySelectorAll(".tile");
+      let cursewords
       let sx = 0,
         sy = 0,
         nx = 0,
@@ -155,7 +155,7 @@
       console.log(tiles);
 
       // set tile positions
-      window.onload = (e) => {
+      window.onload = async (e) => {
         tiles = [...tiles].map((t, index) => {
           t.style.width = `${document.body.clientWidth / tiles.length}px`;
           t.style.height = `50%`;
@@ -163,6 +163,15 @@
             (document.body.clientWidth / tiles.length) * index
           }px`;
         });
+
+
+
+        // get exisitng rooms
+        // fetch existing
+        let existing = await fetch('/room/exisiting').then(r=>r.json()).then(d=>d.room)
+        if(existing!=='no data'){
+          existing.map(ex=>inTake(ex))
+        }
       };
 
       // iterate through tiles
@@ -206,9 +215,9 @@
       let room_intake = tiles[1];
       // submit function
       let submit = document.querySelector("button[type=submit]");
-      console.log(submit);
       submit.onclick = async (e) => {
-        let payload = {room:(e.target.parentElement.children[0].value)}
+        let value = await checkCurseWords(e.target.parentElement.children[0].value);
+        let payload = { room: value };
         // prevent form from firing
         e.preventDefault();
         // create new room
@@ -217,22 +226,48 @@
           method: "POST",
           body: JSON.stringify(payload),
         })
-        .then(r=>r.json())
-        .then(data=> {
-          let rooms = data.room // array of rooms
-          let target = rooms[rooms.length-1]
-          inTake(target)
-        });
+          .then((r) => {
+            return /401/.test(r.status) ? console.log('Room already existis. Why the fuck are you trying to create another one?') : r.json()
+          })
+          .then((data) => {
+            let rooms = data.room; // array of rooms
+            let target = rooms[rooms.length - 1];
+            inTake(target);
+            let lis = document.querySelectorAll(".align-li");
+            lis.forEach((l, index) => {
+              l.onclick = async (e) => {
+                let room = l.textContent;
+                console.log(room);
+                return await fetch("/room/" + room, {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                })
+                  .then((r) => r.json())
+                  .then((data) => console.log(data));
+              };
+            });
+          });
+        e.target.parentElement.children[0].value = ''
       };
+
       
-      function inTake(room){
-        let intake = document.getElementById('intake')
-        let li = document.createElement('li')
-        li.classList.add('align-li')
-        li.textContent = room;
-        intake.appendChild(li)
+      async function checkCurseWords(val){
+        console.log('checking if '+ val+' is a curseword...')
+        let cursewords = await fetch('/words/curse').then(r=>r.json()).then(d=>console.log(d))
+
       }
-  
+      // function to append li's to ul
+      function inTake(room) {
+        let li = document.createElement("li");
+        li.classList.add("align-li");
+        li.textContent = room;
+        intake.appendChild(li);
+      }
+
+
+    
     </script>
   </body>
 </html>
