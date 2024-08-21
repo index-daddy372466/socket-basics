@@ -105,14 +105,36 @@ app.get("/logout", checkAuthenticated, (req, res) => {
   console.log(req.user)
 });
 
+
+let rooms = []
+// create a room
+app.post("/create/room",(req,res)=>{
+
+  const {room}=req.body
+  console.log(room)
+  try{
+    if(room && (!rooms.includes(room)||rooms.indexOf(room)==-1)){
+      rooms.push(room)
+      console.log(rooms)
+      res.json({room:rooms})
+    }
+    else{
+      res.status(401).send('not an authorized request')
+    }
+  }
+  catch(err){
+    throw err
+  }
+})
+
 socketIoStart(io);
 
 // app listen
-// app.listen(PORT,()=>{
-//   console.log(`listening on port ${PORT}`)
-// })
+app.listen(PORT,()=>{
+  console.log(`listening on port ${PORT}`)
+})
 
 // server listen
-server.listen(PORT, () => {
-  console.log(connection);
-});
+// server.listen(PORT, () => {
+//   console.log(connection);
+// });

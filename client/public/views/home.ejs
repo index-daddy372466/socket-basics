@@ -10,6 +10,22 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+      -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+      -khtml-user-select: none; /* Konqueror HTML */
+      -moz-user-select: none; /* Old versions of Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+      user-select: none; /* Non-prefixed version, currently
+                                      supported by Chrome, Edge, Opera and Firefox */
+    }
+    body {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     #container {
       background: #333;
@@ -19,19 +35,115 @@
     #tile1,
     #tile2,
     #tile3 {
-      height: 300px;
-      width: 300px;
-      background: green;
+      border: 2px solid red;
+      background: #fff;
       border-radius: 12px;
       cursor: pointer;
       position: Fixed;
+    }
+
+    #tile3 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+    #tile3 > .parent {
+      height: 50%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: end;
+    }
+    #tile3 > form {
+      height: 50%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      gap: 1rem;
+    }
+    .align-li{
+      text-align:center;
+      cursor:pointer;
+      list-style:none;
+      transition:.5s;
+      padding:.5rem;
+      border-radius:12px;
+    }
+    .align-li:hover{
+      transition:.25s;
+      color:#fff;
+      background:#000;
+    }
+    #form > #text-input {
+      padding: 0.25rem;
+      width: 75%;
+      font-size: 18px;
+      text-align: center;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      background: silver;
+      box-shadow: inset 0 0 4px 1.5px #6f6969;
+    }
+    #form > button {
+      height: 50px;
+      width: 50px;
+      border-radius: 12px;
+      background: purple;
+      color: #fff;
+      font-size: 25px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: 0.5s;
+      filter: drop-shadow(1px 3px 1.5px rgb(0, 0, 0));
+      -webkit-filter: drop-shadow(1px 3px 1.5px rgb(0, 0, 0));
+      -webkit-filter: drop-shadow(1px 3px 1.5px rgb(0, 0, 0));
+      outline: none;
+    }
+    #intake{ 
+      width:100%;
+      height:100%;
+      display:flex;
+      flex-direction: column;
+      align-items:center;
+      justify-content: center;
+    }
+    #form > button:hover {
+      filter: none;
+      height: 49px;
+      width: 49px;
+      transition: 0.25s;
     }
   </style>
   <body>
     <div id="container">
       <div id="tile1" class="tile"></div>
-      <div id="tile2" class="tile"></div>
-      <div id="tile3" class="tile"></div>
+      <div id="tile2" class="tile">
+        <ul id="intake">
+
+        </ul>
+      </div>
+      <div id="tile3" class="tile">
+        <div class="parent">
+          <h1 style="text-align: center;">Create a Room</h1>
+        </div>
+        <form action="/create/room" method="POST" id="form">
+          <input
+            type="text"
+            name="room"
+            id="text-input"
+            maxlength="10"
+            minlength="3"
+          />
+          <button type="submit">+</button>
+        </form>
+      </div>
     </div>
 
     <script>
@@ -40,13 +152,18 @@
         sy = 0,
         nx = 0,
         ny = 0;
+      console.log(tiles);
 
-        // set tile positions
-        window.onload = e => {
-          tiles = [...tiles].map((t,index)=>{
-            t.style.left = `${(document.body.clientWidth / tiles.length)* index}px`
-          })
-        }
+      // set tile positions
+      window.onload = (e) => {
+        tiles = [...tiles].map((t, index) => {
+          t.style.width = `${document.body.clientWidth / tiles.length}px`;
+          t.style.height = `50%`;
+          t.style.left = `${
+            (document.body.clientWidth / tiles.length) * index
+          }px`;
+        });
+      };
 
       // iterate through tiles
       tiles.forEach((tile, idx) => {
@@ -54,37 +171,68 @@
 
         //1) Mousedown
         function mouseDown(e) {
-        // starting position becomes current tile position
+          // starting position becomes current tile position
           sx = e.clientX;
           sy = e.clientY;
-        
-        // listen for mousemove & mouseup events when mouse is down
+
+          // listen for mousemove & mouseup events when mouse is down
           document.addEventListener("mousemove", mouseMove);
           document.onmouseup = mouseUp;
         }
 
         // mousemove
         function mouseMove(e) {
-        // new x/y positions = starting positions - current tile position
+          // new x/y positions = starting positions - current tile position
           nx = sx - e.clientX;
           ny = sy - e.clientY;
 
-        // starting position becomes current tile position (again)
+          // starting position becomes current tile position (again)
           sx = e.clientX;
           sy = e.clientY;
 
-        // tile's left position = tile's left offset - new-x position
+          // tile's left position = tile's left offset - new-x position
           tile.style.left = `${tile.offsetLeft - nx}px`;
-        // tile's top position = tile's top offset - new-y position
+          // tile's top position = tile's top offset - new-y position
           tile.style.top = `${tile.offsetTop - ny}px`;
         }
 
         // mouseup
         function mouseUp(e) {
-        // remove mousemove event listener
+          // remove mousemove event listener
           document.removeEventListener("mousemove", mouseMove);
         }
       });
+
+      let room_intake = tiles[1];
+      // submit function
+      let submit = document.querySelector("button[type=submit]");
+      console.log(submit);
+      submit.onclick = async (e) => {
+        let payload = {room:(e.target.parentElement.children[0].value)}
+        // prevent form from firing
+        e.preventDefault();
+        // create new room
+        await fetch("/create/room", {
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
+          body: JSON.stringify(payload),
+        })
+        .then(r=>r.json())
+        .then(data=> {
+          let rooms = data.room // array of rooms
+          let target = rooms[rooms.length-1]
+          inTake(target)
+        });
+      };
+      
+      function inTake(room){
+        let intake = document.getElementById('intake')
+        let li = document.createElement('li')
+        li.classList.add('align-li')
+        li.textContent = room;
+        intake.appendChild(li)
+      }
+  
     </script>
   </body>
 </html>
