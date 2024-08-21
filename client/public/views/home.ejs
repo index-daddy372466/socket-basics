@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>chat rooms</title>
+  </head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    #container {
+      background: #333;
+      height: 100vh;
+      width: 100%;
+    }
+    #tile1,
+    #tile2,
+    #tile3 {
+      height: 300px;
+      width: 300px;
+      background: green;
+      border-radius: 12px;
+      cursor: pointer;
+      position: Fixed;
+    }
+  </style>
+  <body>
+    <div id="container">
+      <div id="tile1" class="tile"></div>
+      <div id="tile2" class="tile"></div>
+      <div id="tile3" class="tile"></div>
+    </div>
+
+    <script>
+      let tiles = document.querySelectorAll(".tile");
+      let sx = 0,
+        sy = 0,
+        nx = 0,
+        ny = 0;
+
+        // set tile positions
+        window.onload = e => {
+          tiles = [...tiles].map((t,index)=>{
+            t.style.left = `${(document.body.clientWidth / tiles.length)* index}px`
+          })
+        }
+
+      // iterate through tiles
+      tiles.forEach((tile, idx) => {
+        tile.onmousedown = mouseDown;
+
+        //1) Mousedown
+        function mouseDown(e) {
+        // starting position becomes current tile position
+          sx = e.clientX;
+          sy = e.clientY;
+        
+        // listen for mousemove & mouseup events when mouse is down
+          document.addEventListener("mousemove", mouseMove);
+          document.onmouseup = mouseUp;
+        }
+
+        // mousemove
+        function mouseMove(e) {
+        // new x/y positions = starting positions - current tile position
+          nx = sx - e.clientX;
+          ny = sy - e.clientY;
+
+        // starting position becomes current tile position (again)
+          sx = e.clientX;
+          sy = e.clientY;
+
+        // tile's left position = tile's left offset - new-x position
+          tile.style.left = `${tile.offsetLeft - nx}px`;
+        // tile's top position = tile's top offset - new-y position
+          tile.style.top = `${tile.offsetTop - ny}px`;
+        }
+
+        // mouseup
+        function mouseUp(e) {
+        // remove mousemove event listener
+          document.removeEventListener("mousemove", mouseMove);
+        }
+      });
+    </script>
+  </body>
+</html>

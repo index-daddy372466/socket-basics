@@ -27,7 +27,7 @@ const checkNotAuthenticated = (req, res, next) => {
   if (!req.user) {
     next();
   } else {
-    res.redirect("/chat");
+    res.redirect("/home");
   }
 };
 
@@ -47,15 +47,15 @@ const sessionMiddleware = session({
   saveUninitialized: false,
 });
 // middleware
+
+
+app.set('views',path.resolve(__dirname,"../client/public/views"))
+app.set('view engine','ejs')
 initializePassport(passport);
 // pass static html/css
 // app.use(express.static("client/public"));
 app.use(express.json());
 app.use(cookieParser());
-// app.use((req, res, next) => {
-
-//   next();
-// });
 setMaxListeners(20)
 app.use(sessionMiddleware);
 app.use(express.urlencoded({ extended: true }));
@@ -65,8 +65,8 @@ io.engine.use(sessionMiddleware);
 
 // home (conditional)
 app.route("/").get((req, res) => {
-  if (req.user) {
-    res.redirect("/chat");
+  if (req.isAuthenticated()) {
+    res.redirect("/home");
   } else {
     res.redirect("/login");
   }
@@ -75,7 +75,7 @@ app.route("/").get((req, res) => {
 // login attempt
 app.route("/login-attempt").post(
   passport.authenticate("local", {
-    successRedirect: "/chat",
+    successRedirect: "/home",
     failureRedirect: "/",
   })
 );
@@ -85,22 +85,20 @@ app.route("/login").get(checkNotAuthenticated, (req, res) => {
   res.sendFile(path.resolve(__dirname, "../client/public/index.html"));
 });
 
+// home page GET
+// app.route('/home').get(checkAuthenticated, (req,res)=>{
+// res.render('home.ejs')
+// })
+app.route('/home').get((req,res)=>{
+  res.render('home.ejs')
+  })
 // chat page GET
 app.route("/chat").get(checkAuthenticated, (req, res) => {
-  console.log(req.cookies);
-  io.on("connection", (socket) => {
-    socket.id = req.cookies["uniqueCookieName"];
-  });
   res.sendFile(path.resolve(__dirname, "../client/public/chat.html"));
 });
 
 // logout GET
 app.get("/logout", checkAuthenticated, (req, res) => {
-  console.log(req.user)
-  // io.on('connection',socket=>{
-  //   // disconnect the socket without closing the underlying connection 
-  //   socket.disconnect()
-  // })
   req.logout(() => {
     res.redirect("/");
   });

@@ -111,8 +111,45 @@
         let submit = document.getElementById('submit')
         let chatbox = document.getElementById('chats')
 
-        
-        
+     
+      const appendMessage = (bool,chatbox,li) => {
+        if(!bool){
+          setTimeout(()=>{
+            chatbox.appendChild(li)
+            chatbox.scrollTo(0,chatbox.clientHeight)
+          },500)
+        }
+        else{
+          chatbox.appendChild(li)
+          chatbox.scrollTo(0,chatbox.clientHeight)
+        }
+      }
+        let sameSender = false; // verify if the sender if you
+        // submit onclick
+        submit.onclick=e=>{
+          console.log('scrollHeight')
+          console.log(chatbox.scrollHeight+100)
+          chatbox.scrollTop = chatbox.scrollHeight - chatbox.clientHeight;
+          setTimeout(()=>chatbox.scrollTo(0,chatbox.clientHeight),250)
+          sameSender = true;
+            e.preventDefault();
+            if(text.value){
+              // emit message
+                socket.emit('chat',text.value);
+                text.value = ''
+            }
+        }
+        // append li to chatbox
+        socket.on('chat',(msg,user) => {
+        console.log(user)
+          let li = document.createElement('li')
+          li.classList.add('list-item')
+          // once the li is created, text-align start/end based off of receiver/sender respectively
+          !sameSender ? li.classList.add('left') : li.classList.add('right')
+          li.textContent = `${msg} [${user.name}]`;
+            appendMessage(sameSender,chatbox,li)
+          sameSender = false;
+        })
 
      </script>
   </body>
