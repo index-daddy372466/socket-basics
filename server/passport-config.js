@@ -21,6 +21,11 @@ const Users = [
     name: "josh",
     password: "josh0",
   },
+  {
+    id: 5,
+    name: "cameron",
+    password: "cam25",
+  }
 ];
 
 // get user by email
