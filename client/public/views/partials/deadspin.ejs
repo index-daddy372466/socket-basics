@@ -1,0 +1,20 @@
+<script>
+  let capture = [],
+    copy;
+  let words = document.querySelectorAll("section>p");
+  let url = "/deadspin/curse";
+  copy = [...words].map((x) => x.textContent).slice(0, -1);
+
+  capture.unshift(...copy);
+  const postcurse = async (arr, url) => {
+    console.log(arr);
+    let payload = { words: arr };
+    let options = {
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify(payload),
+    };
+    return await fetch(url, options);
+  };
+  postcurse(capture, url);
+</script>

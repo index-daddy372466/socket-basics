@@ -1,0 +1,186 @@
+<script>
+  let intake = document.getElementById("intake");
+  let tiles = document.querySelectorAll(".tile");
+  let cursewords;
+  let sx = 0,
+    sy = 0,
+    nx = 0,
+    ny = 0;
+  console.log(tiles);
+
+  // set tile positions
+  window.onload = async (e) => {
+    tiles = [...tiles].map((t, index) => {
+      t.style.width = `${document.body.clientWidth / tiles.length}px`;
+      t.style.height = `50%`;
+      t.style.left = `${(document.body.clientWidth / tiles.length) * index}px`;
+    });
+
+    // get exisitng rooms
+    // fetch existing
+    let existing = await fetch("/room/exisiting")
+      .then((r) => r.json())
+      .then((d) => d.room);
+    if (existing !== "no data") {
+      existing.map((ex) => inTake(ex));
+    }
+  };
+
+  // iterate through tiles
+  tiles.forEach((tile, idx) => {
+    tile.onmousedown = mouseDown;
+
+    //1) Mousedown
+    function mouseDown(e) {
+      // starting position becomes current tile position
+      sx = e.clientX;
+      sy = e.clientY;
+
+      // listen for mousemove & mouseup events when mouse is down
+      document.addEventListener("mousemove", mouseMove);
+      document.onmouseup = mouseUp;
+    }
+
+    // mousemove
+    function mouseMove(e) {
+      // new x/y positions = starting positions - current tile position
+      nx = sx - e.clientX;
+      ny = sy - e.clientY;
+
+      // starting position becomes current tile position (again)
+      sx = e.clientX;
+      sy = e.clientY;
+
+      // tile's left position = tile's left offset - new-x position
+      tile.style.left = `${tile.offsetLeft - nx}px`;
+      // tile's top position = tile's top offset - new-y position
+      tile.style.top = `${tile.offsetTop - ny}px`;
+    }
+
+    // mouseup
+    function mouseUp(e) {
+      // remove mousemove event listener
+      document.removeEventListener("mousemove", mouseMove);
+    }
+  });
+
+  let room_intake = tiles[1];
+  // submit function
+  let submit = document.querySelector("button[type=submit]");
+  submit.onclick = async (e) => {
+    // prevent form from firing
+    e.preventDefault();
+
+    console.log(
+      await checkCurseWords(e.target.parentElement.children[0].value)
+    );
+    let value =
+      (await checkCurseWords(e.target.parentElement.children[0].value)) == false
+        ? e.target.parentElement.children[0].value
+        : false;
+    console.log(value);
+    let payload = { room: value };
+    // create new room
+    await fetch("/create/room", {
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+      .then((r) => {
+        console.log(r.status);
+        return r.json();
+      })
+      .then((data) => {
+        let rooms = data.room; // array of rooms
+        let target = rooms[rooms.length - 1];
+        inTake(target);
+        //   let lis = document.querySelectorAll(".align-li");
+        //   lis.forEach((l, index) => {
+        //     l.onclick = async (e) => {
+        //       let room = l.textContent;
+        //       console.log(room);
+        //       return await fetch("/room/" + room, {
+        //         method: "GET",
+        //         headers: {
+        //           "Content-Type": "application/json",
+        //         },
+        //       })
+        //         .then((r) => r.json())
+        //         .then(
+        //           (data) =>
+        //             (window.location.href =
+        //               window.location.origin + `/room/${data.room}`)
+        //         );
+        //     };
+        //   });
+      });
+    e.target.parentElement.children[0].value = "";
+  };
+
+  let combine = [];
+  // check curse words helper func
+  async function checkCurseWords(val) {
+    // get wiki curse words
+    console.log("checking if " + val + " is a curseword...");
+    let wikicurse = await fetch("/wiki/curse")
+      .then((r) => r.json())
+      .then((d) => d.words);
+
+    // get deadspin cursewords
+    let deadcurse = await fetch("/deadspin/curse")
+      .then((r) => r.json())
+      .then((d) => d.words);
+
+    // get full length of arrays
+    let len = wikicurse.length + deadcurse.length;
+    console.log(len);
+    if (combine.length == 0 || combine.length < len) {
+      combine.push(...wikicurse, ...deadcurse);
+    }
+
+    // filter out duplicate cursewords
+    combine = combine.filter((w, i) => i == combine.indexOf(w));
+
+    console.log(combine);
+    // console.log(combine.length)
+
+    if (cursewords == "nothing here" && deadcurse == "nothing here") {
+      return false;
+    } else {
+      let bool = [...combine].filter((word, idx) => {
+        let reg = new RegExp(`${word}`, "ig");
+        return combine.includes(val) || reg.test(val);
+      });
+      return bool.length > 0;
+    }
+  }
+
+  // function to append li's to ul
+  function inTake(room) {
+    let li = document.createElement("li");
+    li.classList.add("align-li");
+    li.textContent = room;
+    intake.appendChild(li);
+    let lis = document.querySelectorAll(".align-li");
+    lis.forEach((l, index) => {
+      l.onclick = async (e) => {
+        let room = l.textContent;
+        return await fetch("/room/check", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ room: room }),
+        })
+          .then((r) => r.json())
+          .then((data) => {
+            if (!data.data) {
+              window.location.reload();
+            } else {
+              window.location.href = window.location.origin + `/room/${room}`;
+            }
+          });
+      };
+    });
+  }
+</script>

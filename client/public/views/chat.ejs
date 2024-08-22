@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= room %> room</title>
+  </head>
+<%- include('./partials/css/chat.ejs') %>
+  <body>
+    <!-- header -->
+     <div style="position:Fixed;opacity:.88;top:0px;height:66px;z-index:999;width:100%;background-image:linear-gradient(90deg,pink,lightblue);">
+      <h1 style="text-align: center;opacity:.88;margin-top:1rem;">Welcome to <em style="color:rgb(127, 126, 126); text-shadow:.5px 0 #333;"><%= room %></em></h1>
+     </div>
+    <!-- chatbox -->
+    <ul id="chats" class="messages"></ul>
+
+    <!-- form (chat & send chat) -->
+    <form action="" id="form">
+      <input type="text" id="text" />
+      <input type="submit" id="submit" />
+    </form>
+
+    <!-- inject clientside io -->
+     <script src="/socket.io/socket.io.js"></script>
+     <%- include('./partials/chat.ejs') %>
+  </body>
+</html>

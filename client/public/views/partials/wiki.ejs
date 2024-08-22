@@ -1,12 +1,19 @@
-<script>(window.onload=e=>{
-
-	let cursewords = [...document.querySelectorAll('.mw-category-group>ul>li>a')]
-	let words = cursewords.map(w=>w.textContent)
-	const postcurse = async (arr) => {
-		console.log(arr)
-		let payload = {words:arr}
-		let options = {headers:{"Content-Type":"application/json"},method:'POST',body:JSON.stringify(payload)}
-		return await fetch('/wiki/curse',options)
-	}
-	postcurse(words)
-})</script>
+<script>
+  window.onload = (e) => {
+    let cursewords = [
+      ...document.querySelectorAll(".mw-category-group>ul>li>a"),
+    ];
+    let words = cursewords.map((w) => w.textContent);
+    let url = "/wiki/curse";
+    const postcurse = async (arr, url) => {
+      let payload = { words: arr };
+      let options = {
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+        body: JSON.stringify(payload),
+      };
+      return await fetch(url, options);
+    };
+    postcurse(words, url);
+  };
+</script>

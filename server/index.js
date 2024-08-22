@@ -63,8 +63,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 io.engine.use(sessionMiddleware);
-// cursewords from wiki page
-let cursewords = [];
+
+
+
+
+
 // home (conditional)
 app.route("/").get((req, res) => {
   // let readWiki = fs.readFileSync(
@@ -78,15 +81,78 @@ app.route("/").get((req, res) => {
     res.redirect("/login");
   }
 });
-
 // home page GET
-// app.route('/home').get(checkAuthenticated, (req,res)=>{
-// res.render('home.ejs')
-// })
 app.route("/home").get((req, res) => {
   res.render("home.ejs");
 });
 
+// storage for cursewords
+let deadcurse = [];
+
+// curse words from deadspin
+app.get("/deadspin/write", async (req, res) => {
+  // testing to write a clone files from wikipedia page swear words
+  try {
+    let filename = "/deadspin.ejs";
+    let file = await fetch(
+      "https://deadspin.com/behold-the-ultimate-curse-word-bracket-457043269/"
+    )
+      .then((r) => r.text())
+      .then((d) => {
+        return d;
+      });
+    console.log(
+      fs.existsSync(
+        path.resolve(__dirname, "../client/public/views/" + filename)
+      )
+    );
+    if (
+      !fs.existsSync(
+        path.resolve(__dirname, "../client/public/views/" + filename)
+      )
+    ) {
+      fs.writeFileSync(
+        Buffer.from(
+          path.resolve(__dirname, "../client/public/views/" + filename)
+        ),
+        file,
+        { encoding: "utf-8" }
+      );
+    }
+    res.redirect("/");
+  } catch (err) {
+    console.log(err);
+  }
+});
+// deadspin page GET
+// if wiki file exists
+app.route("/deadspin/clone").get((req, res) => {
+  res.render("deadspin.ejs");
+});
+// post curse words
+app.post("/deadspin/curse", (req, res) => {
+  const { words } = req.body; // array of curse words
+  console.log(words);
+  if (words.length < 1) {
+    res.json({ words: "no words" });
+  } else {
+    if (deadcurse.length < 1) {
+      deadcurse.push(...words);
+      deadcurse = deadcurse.slice(1, deadcurse.length);
+    }
+    res.json({ words: deadcurse.flat() });
+  }
+})
+// get curse words
+app.get("/deadspin/curse", (req, res) => {
+  res.json({
+    words: deadcurse.length < 1 ? "nothing here" : deadcurse.flat(),
+  });
+});
+
+
+// storage for cursewords
+let wikicurse = [];
 // spawn wiki by writing file from url
 app.get("/wiki/write", async (req, res) => {
   // testing to write a clone files from wikipedia page swear words
@@ -134,25 +200,21 @@ app.post("/wiki/curse", (req, res) => {
   if (words.length < 1) {
     res.json({ words: "no words" });
   } else {
-    if (cursewords.length < 1) {
-      cursewords.push(...words);
-      cursewords = cursewords.slice(1, cursewords.length);
+    if (wikicurse.length < 1) {
+      wikicurse.push(...words);
+      wikicurse = wikicurse.slice(1, wikicurse.length);
     }
-    res.json({ words: cursewords.flat() });
+    res.json({ words: wikicurse.flat() });
   }
 });
-
 // get curse words
 app.get("/wiki/curse", (req, res) => {
   res.json({
-    words: cursewords.length < 1 ? "nothing here" : cursewords.flat(),
+    words: wikicurse.length < 1 ? "nothing here" : wikicurse.flat(),
   });
 });
 
-// chat page GET
-app.route("/chat").get(checkAuthenticated, (req, res) => {
-  res.sendFile(path.resolve(__dirname, "../client/public/chat.html"));
-});
+
 // login page
 app.route("/login").get(checkNotAuthenticated, (req, res) => {
   res.sendFile(path.resolve(__dirname, "../client/public/index.html"));
@@ -171,8 +233,9 @@ app.get("/logout", checkAuthenticated, (req, res) => {
   });
   console.log(req.user);
 });
-let rooms = [];
 
+
+let rooms = [];
 // clear rooms
 app.route('/rooms/clear').get((req,res)=>{
   rooms = [];
@@ -195,7 +258,6 @@ app.post("/create/room", (req, res) => {
     throw err;
   }
 });
-
 // exisiting rooms
 app.get("/room/exisiting", (req, res) => {
   let roomData = [...rooms];
@@ -205,7 +267,6 @@ app.get("/room/exisiting", (req, res) => {
     res.json({ room: roomData });
   }
 });
-
 app.get("/room/:room", (req, res) => {
   if (!rooms.includes(req.params.room)) {
     res.status(403).json({ err: "unauthorized!" });
@@ -213,6 +274,16 @@ app.get("/room/:room", (req, res) => {
     res.json({ room: req.params.room });
   }
 });
+
+
+
+
+
+
+// chat page GET
+// app.route("/chat").get(checkAuthenticated, (req, res) => {
+//   res.sendFile(path.resolve(__dirname, "../client/public/chat.html"));
+// });
 
 // socket io
 socketIoStart(io);
