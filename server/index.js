@@ -68,7 +68,7 @@ let cursewords = [];
 // home (conditional)
 app.route("/").get((req, res) => {
   // let readWiki = fs.readFileSync(
-  //   path.resolve(__dirname, "../client/public/wiki.html"),
+  //   path.resolve(__dirname, "../client/public/views/wiki.ejs"),
   //   { encoding: "utf-8" }
   // );
   // console.log(readWiki);
@@ -91,7 +91,7 @@ app.route("/home").get((req, res) => {
 app.get("/wiki/write", async (req, res) => {
   // testing to write a clone files from wikipedia page swear words
   try {
-    let filename = "/wiki.html";
+    let filename = "/wiki.ejs";
     let file = await fetch(
       "https://en.wiktionary.org/wiki/Category:English_swear_words"
     )
@@ -99,10 +99,20 @@ app.get("/wiki/write", async (req, res) => {
       .then((d) => {
         return d;
       });
-      console.log(fs.existsSync(path.resolve(__dirname, "../client/public/" + filename)))
-    if(!fs.existsSync(path.resolve(__dirname, "../client/public/" + filename))){
+    console.log(
+      fs.existsSync(
+        path.resolve(__dirname, "../client/public/views/" + filename)
+      )
+    );
+    if (
+      !fs.existsSync(
+        path.resolve(__dirname, "../client/public/views/" + filename)
+      )
+    ) {
       fs.writeFileSync(
-        Buffer.from(path.resolve(__dirname, "../client/public/" + filename)),
+        Buffer.from(
+          path.resolve(__dirname, "../client/public/views/" + filename)
+        ),
         file,
         { encoding: "utf-8" }
       );
@@ -115,7 +125,7 @@ app.get("/wiki/write", async (req, res) => {
 // wiki page GET
 // if wiki file exists
 app.route("/wiki/clone").get((req, res) => {
-  res.sendFile(path.resolve(__dirname, "../client/public/wiki.html"));
+  res.render("wiki.ejs");
 });
 // post curse words
 app.post("/wiki/curse", (req, res) => {
@@ -124,9 +134,9 @@ app.post("/wiki/curse", (req, res) => {
   if (words.length < 1) {
     res.json({ words: "no words" });
   } else {
-    if(cursewords.length < 1){
+    if (cursewords.length < 1) {
       cursewords.push(...words);
-      cursewords=cursewords.slice(1,cursewords.length)
+      cursewords = cursewords.slice(1, cursewords.length);
     }
     res.json({ words: cursewords.flat() });
   }
@@ -134,7 +144,9 @@ app.post("/wiki/curse", (req, res) => {
 
 // get curse words
 app.get("/wiki/curse", (req, res) => {
-  res.json({ words: cursewords.length < 1 ? "nothing here" : cursewords.flat() });
+  res.json({
+    words: cursewords.length < 1 ? "nothing here" : cursewords.flat(),
+  });
 });
 
 // chat page GET
@@ -152,8 +164,6 @@ app.route("/login-attempt").post(
     failureRedirect: "/",
   })
 );
-
-
 // logout GET
 app.get("/logout", checkAuthenticated, (req, res) => {
   req.logout(() => {
@@ -161,12 +171,17 @@ app.get("/logout", checkAuthenticated, (req, res) => {
   });
   console.log(req.user);
 });
-
 let rooms = [];
+
+// clear rooms
+app.route('/rooms/clear').get((req,res)=>{
+  rooms = [];
+  res.redirect('/home')
+})
 // create a room
 app.post("/create/room", (req, res) => {
   const { room } = req.body;
-  console.log('room on post')
+  console.log("room on post");
   console.log(room);
   try {
     if (room && (!rooms.includes(room) || rooms.indexOf(room) == -1)) {
@@ -192,8 +207,11 @@ app.get("/room/exisiting", (req, res) => {
 });
 
 app.get("/room/:room", (req, res) => {
-  console.log(req.params.room);
-  res.json({ room: req.body.room });
+  if (!rooms.includes(req.params.room)) {
+    res.status(403).json({ err: "unauthorized!" });
+  } else {
+    res.json({ room: req.params.room });
+  }
 });
 
 // socket io

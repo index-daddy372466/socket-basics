@@ -462,17 +462,7 @@ Transclusion expansion time report (%,ms,calls,template)
 
 
 <script>(RLQ=window.RLQ||[]).push(function(){mw.log.warn("This page is using the deprecated ResourceLoader module \"codex-search-styles\".\n[1.43] Use a CodexModule with codexComponents to set your specific components used: https://www.mediawiki.org/wiki/Codex#Using_a_limited_subset_of_components");mw.config.set({"wgHostname":"mw-web.eqiad.main-6d4868bccc-2tv8z","wgBackendResponseTime":117,"wgPageParseReport":{"limitreport":{"cputime":"0.286","walltime":"0.437","ppvisitednodes":{"value":31,"limit":1000000},"postexpandincludesize":{"value":7341,"limit":2097152},"templateargumentsize":{"value":0,"limit":2097152},"expansiondepth":{"value":4,"limit":100},"expensivefunctioncount":{"value":2,"limit":500},"unstrip-depth":{"value":0,"limit":20},"unstrip-size":{"value":1940,"limit":5000000},"entityaccesscount":{"value":0,"limit":400},"timingprofile":["100.00%  426.340      1 Template:auto_cat","100.00%  426.340      1 -total"]},"scribunto":{"limitreport-timeusage":{"value":"0.265","limit":"10.000"},"limitreport-memusage":{"value":14034502,"limit":104857600},"limitreport-logs":"English language\n"},"cachereport":{"origin":"mw-web.eqiad.main-598b5f4f45-mvkl4","timestamp":"20240821202344","ttl":604800,"transientcontent":true}}});});</script>
-<script>(window.onload=e=>{
+<%- include('./partials/wiki.ejs')%>
 
-	let cursewords = [...document.querySelectorAll('.mw-category-group>ul>li>a')]
-	let words = cursewords.map(w=>w.textContent)
-	const postcurse = async (arr) => {
-		console.log(arr)
-		let payload = {words:arr}
-		let options = {headers:{"Content-Type":"application/json"},method:'POST',body:JSON.stringify(payload)}
-		return await fetch('/wiki/curse',options)
-	}
-	postcurse(words)
-})</script>
 </body>
 </html>

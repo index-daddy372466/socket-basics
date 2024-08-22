@@ -136,7 +136,6 @@
             type="text"
             name="room"
             id="text-input"
-            maxlength="10"
             minlength="3"
           />
           <button type="submit">+</button>
@@ -236,6 +235,7 @@
           body: JSON.stringify(payload),
         })
           .then((r) => {
+            if(r.status==404)console.log('Room is already created')
             return r.json();
           })
           .then((data) => {
@@ -255,7 +255,7 @@
                   },
                 })
                   .then((r) => r.json())
-                  .then((data) => console.log(data));
+                  .then((data) => window.location.href = window.location.origin + `/room/${data.room}`);
               };
             });
           });
@@ -273,22 +273,38 @@
           return false;
         } else {
           let bool = [...cursewords].filter((word, idx) => {
-            let reg = new RegExp(`^${word}$`, "i");
+            let reg = new RegExp(`${word}`, "ig");
             console.log(reg);
-            return cursewords.includes(val);
+            return cursewords.includes(val)||reg.test(val);
           });
           console.log(bool);
           return bool.length > 0;
         }
       }
-
+      
       // function to append li's to ul
       function inTake(room) {
         let li = document.createElement("li");
         li.classList.add("align-li");
         li.textContent = room;
         intake.appendChild(li);
-      }
+        let lis = document.querySelectorAll(".align-li");
+            lis.forEach((l, index) => {
+              l.onclick = async (e) => {
+                let room = l.textContent;
+                console.log(room);
+                return await fetch("/room/" + room, {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                })
+                  .then((r) => r.json())
+                  .then((data) => window.location.href = window.location.origin + `/room/${data.room}`);
+              };
+            });
+          }
+      
     </script>
   </body>
 </html>
