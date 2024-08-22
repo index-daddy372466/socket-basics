@@ -126,10 +126,9 @@ app.post("/wiki/curse", (req, res) => {
   } else {
     if(cursewords.length < 1){
       cursewords.push(...words);
+      cursewords=cursewords.slice(1,cursewords.length)
     }
-    console.log(cursewords)
-    cursewords=cursewords.slice(1,cursewords.length)
-    res.json({ words: cursewords.flat });
+    res.json({ words: cursewords.flat() });
   }
 });
 
@@ -167,6 +166,7 @@ let rooms = [];
 // create a room
 app.post("/create/room", (req, res) => {
   const { room } = req.body;
+  console.log('room on post')
   console.log(room);
   try {
     if (room && (!rooms.includes(room) || rooms.indexOf(room) == -1)) {

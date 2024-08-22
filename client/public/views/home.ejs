@@ -147,7 +147,7 @@
     <script>
       let intake = document.getElementById("intake");
       let tiles = document.querySelectorAll(".tile");
-      let cursewords
+      let cursewords;
       let sx = 0,
         sy = 0,
         nx = 0,
@@ -164,13 +164,13 @@
           }px`;
         });
 
-
-
         // get exisitng rooms
         // fetch existing
-        let existing = await fetch('/room/exisiting').then(r=>r.json()).then(d=>d.room)
-        if(existing!=='no data'){
-          existing.map(ex=>inTake(ex))
+        let existing = await fetch("/room/exisiting")
+          .then((r) => r.json())
+          .then((d) => d.room);
+        if (existing !== "no data") {
+          existing.map((ex) => inTake(ex));
         }
       };
 
@@ -216,10 +216,19 @@
       // submit function
       let submit = document.querySelector("button[type=submit]");
       submit.onclick = async (e) => {
-        let value = await checkCurseWords(e.target.parentElement.children[0].value);
-        let payload = { room: value };
         // prevent form from firing
         e.preventDefault();
+
+        console.log(
+          await checkCurseWords(e.target.parentElement.children[0].value)
+        );
+        let value =
+          (await checkCurseWords(e.target.parentElement.children[0].value)) ==
+          false
+            ? e.target.parentElement.children[0].value
+            : false;
+        console.log(value);
+        let payload = { room: value };
         // create new room
         await fetch("/create/room", {
           headers: { "Content-Type": "application/json" },
@@ -227,10 +236,11 @@
           body: JSON.stringify(payload),
         })
           .then((r) => {
-            return /401/.test(r.status) ? console.log('Room already existis. Why the fuck are you trying to create another one?') : r.json()
+            return r.json();
           })
           .then((data) => {
             let rooms = data.room; // array of rooms
+            console.log(rooms);
             let target = rooms[rooms.length - 1];
             inTake(target);
             let lis = document.querySelectorAll(".align-li");
@@ -249,15 +259,29 @@
               };
             });
           });
-        e.target.parentElement.children[0].value = ''
+        e.target.parentElement.children[0].value = "";
       };
 
-      
-      async function checkCurseWords(val){
-        console.log('checking if '+ val+' is a curseword...')
-        let cursewords = await fetch('/words/curse').then(r=>r.json()).then(d=>console.log(d))
-
+      // check curse words helper func
+      async function checkCurseWords(val) {
+        console.log("checking if " + val + " is a curseword...");
+        let cursewords = await fetch("/wiki/curse")
+          .then((r) => r.json())
+          .then((d) => d.words);
+        console.log(cursewords);
+        if (cursewords == "nothing here") {
+          return false;
+        } else {
+          let bool = [...cursewords].filter((word, idx) => {
+            let reg = new RegExp(`^${word}$`, "i");
+            console.log(reg);
+            return cursewords.includes(val);
+          });
+          console.log(bool);
+          return bool.length > 0;
+        }
       }
+
       // function to append li's to ul
       function inTake(room) {
         let li = document.createElement("li");
@@ -265,9 +289,6 @@
         li.textContent = room;
         intake.appendChild(li);
       }
-
-
-    
     </script>
   </body>
 </html>
