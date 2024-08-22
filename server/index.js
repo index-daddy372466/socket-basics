@@ -288,11 +288,11 @@ socketIoStart(io);
 
 
 // app listen
-app.listen(PORT, () => {
-  console.log(`listening on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`listening on port ${PORT}`);
+// });
 
 // server listen
-// server.listen(PORT, () => {
-//   console.log(connection);
-// });
+server.listen(PORT, () => {
+  console.log(connection);
+});

@@ -94,25 +94,6 @@
         let rooms = data.room; // array of rooms
         let target = rooms[rooms.length - 1];
         inTake(target);
-        //   let lis = document.querySelectorAll(".align-li");
-        //   lis.forEach((l, index) => {
-        //     l.onclick = async (e) => {
-        //       let room = l.textContent;
-        //       console.log(room);
-        //       return await fetch("/room/" + room, {
-        //         method: "GET",
-        //         headers: {
-        //           "Content-Type": "application/json",
-        //         },
-        //       })
-        //         .then((r) => r.json())
-        //         .then(
-        //           (data) =>
-        //             (window.location.href =
-        //               window.location.origin + `/room/${data.room}`)
-        //         );
-        //     };
-        //   });
       });
     e.target.parentElement.children[0].value = "";
   };

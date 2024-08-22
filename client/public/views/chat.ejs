@@ -8,8 +8,11 @@
 <%- include('./partials/css/chat.ejs') %>
   <body>
     <!-- header -->
-     <div style="position:Fixed;opacity:.88;top:0px;height:66px;z-index:999;width:100%;background-image:linear-gradient(90deg,pink,lightblue);">
-      <h1 style="text-align: center;opacity:.88;margin-top:1rem;">Welcome to <em style="color:rgb(127, 126, 126); text-shadow:.5px 0 #333;"><%= room %></em></h1>
+     <div style="box-shadow:0 .25rem 10px .5px indigo;position:Fixed;opacity:.88;top:0px;height:66px;z-index:999;width:100%;position:relative;background-image:linear-gradient(90deg,pink,lightblue);">
+      <span id="home-btn" class="home" style="position:absolute; top:15px;left:5px;">
+        <a href="/home">Home</a>
+      </span>
+      <h1 id="room-header" style="text-align: center;opacity:.88;margin-top:1rem;">Welcome to <em style="color:rgb(127, 126, 126); text-shadow:.5px 0 #333;"><%= room %></em></h1>
      </div>
     <!-- chatbox -->
     <ul id="chats" class="messages"></ul>
