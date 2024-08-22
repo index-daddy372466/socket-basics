@@ -65,16 +65,8 @@ app.use(passport.session());
 io.engine.use(sessionMiddleware);
 
 
-
-
-
 // home (conditional)
 app.route("/").get((req, res) => {
-  // let readWiki = fs.readFileSync(
-  //   path.resolve(__dirname, "../client/public/views/wiki.ejs"),
-  //   { encoding: "utf-8" }
-  // );
-  // console.log(readWiki);
   if (req.isAuthenticated()) {
     res.redirect("/home");
   } else {
@@ -82,7 +74,7 @@ app.route("/").get((req, res) => {
   }
 });
 // home page GET
-app.route("/home").get((req, res) => {
+app.route("/home").get(checkAuthenticated, (req, res) => {
   res.render("home.ejs");
 });
 
@@ -90,7 +82,7 @@ app.route("/home").get((req, res) => {
 let deadcurse = [];
 
 // curse words from deadspin
-app.get("/deadspin/write", async (req, res) => {
+app.get("/deadspin/write", checkAuthenticated, async (req, res) => {
   // testing to write a clone files from wikipedia page swear words
   try {
     let filename = "/deadspin.ejs";
@@ -126,11 +118,11 @@ app.get("/deadspin/write", async (req, res) => {
 });
 // deadspin page GET
 // if wiki file exists
-app.route("/deadspin/clone").get((req, res) => {
+app.route("/deadspin/clone").get(checkAuthenticated, (req, res) => {
   res.render("deadspin.ejs");
 });
 // post curse words
-app.post("/deadspin/curse", (req, res) => {
+app.post("/deadspin/curse", checkAuthenticated, (req, res) => {
   const { words } = req.body; // array of curse words
   console.log(words);
   if (words.length < 1) {
@@ -142,7 +134,7 @@ app.post("/deadspin/curse", (req, res) => {
     }
     res.json({ words: deadcurse.flat() });
   }
-})
+});
 // get curse words
 app.get("/deadspin/curse", (req, res) => {
   res.json({
@@ -154,7 +146,7 @@ app.get("/deadspin/curse", (req, res) => {
 // storage for cursewords
 let wikicurse = [];
 // spawn wiki by writing file from url
-app.get("/wiki/write", async (req, res) => {
+app.get("/wiki/write", checkAuthenticated, async (req, res) => {
   // testing to write a clone files from wikipedia page swear words
   try {
     let filename = "/wiki.ejs";
@@ -190,11 +182,11 @@ app.get("/wiki/write", async (req, res) => {
 });
 // wiki page GET
 // if wiki file exists
-app.route("/wiki/clone").get((req, res) => {
+app.route("/wiki/clone").get(checkAuthenticated, (req, res) => {
   res.render("wiki.ejs");
 });
 // post curse words
-app.post("/wiki/curse", (req, res) => {
+app.post("/wiki/curse", checkAuthenticated, (req, res) => {
   const { words } = req.body; // array of curse words
   console.log(words);
   if (words.length < 1) {
@@ -237,15 +229,16 @@ app.get("/logout", checkAuthenticated, (req, res) => {
 
 let rooms = [];
 // clear rooms
-app.route('/rooms/clear').get((req,res)=>{
+app.route("/rooms/clear").get((req, res) => {
   rooms = [];
-  res.redirect('/home')
-})
+  res.redirect("/home");
+});
 // create a room
-app.post("/create/room", (req, res) => {
-  const { room } = req.body;
-  console.log("room on post");
-  console.log(room);
+app.post("/create/room", checkAuthenticated, (req, res) => {
+  console.log(req.body.room);
+  let { room } = req.body;
+  // console.log("room on post");
+  // console.log(room);
   try {
     if (room && (!rooms.includes(room) || rooms.indexOf(room) == -1)) {
       rooms.push(room);
@@ -259,7 +252,7 @@ app.post("/create/room", (req, res) => {
   }
 });
 // exisiting rooms
-app.get("/room/exisiting", (req, res) => {
+app.get("/room/exisiting", checkAuthenticated, (req, res) => {
   let roomData = [...rooms];
   if (rooms.length < 1) {
     res.json({ room: "no data" });
@@ -267,17 +260,22 @@ app.get("/room/exisiting", (req, res) => {
     res.json({ room: roomData });
   }
 });
-app.get("/room/:room", (req, res) => {
+app.post("/room/check", (req, res) => {
+  if (!rooms.includes(req.body.room)) {
+    res.status(403).json({ err: "unauthorized!" });
+  } else {
+    res.json({ data: true });
+  }
+});
+app.get("/room/:room", checkAuthenticated, (req, res) => {
   if (!rooms.includes(req.params.room)) {
     res.status(403).json({ err: "unauthorized!" });
   } else {
-    res.json({ room: req.params.room });
+    res.render("chat.ejs", {
+      room: req.params.room,
+    });
   }
 });
-
-
-
-
 
 
 // chat page GET
@@ -287,6 +285,7 @@ app.get("/room/:room", (req, res) => {
 
 // socket io
 socketIoStart(io);
+
 
 // app listen
 app.listen(PORT, () => {
