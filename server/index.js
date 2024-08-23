@@ -9,7 +9,6 @@ const express = require("express"),
   AXI = !process.env._AXI_ ? 4448 : process.env._AXI_,
   path = require("path"),
   cors = require("cors"),
-  connection = "Connected to " + PORT,
   passport = require("passport"),
   initializePassport = require("./passport-config.js"),
   session = require("express-session"),
@@ -62,8 +61,6 @@ app.use(cors());
 app.set("views", path.resolve(__dirname, "../client/public/views"));
 app.set("view engine", "ejs");
 initializePassport(passport, activeUsers);
-// pass static html/css
-// app.use(express.static("client/public"));
 app.use(express.json());
 app.use(cookieParser());
 setMaxListeners(20);
@@ -72,7 +69,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 io.engine.use(sessionMiddleware);
-
 app.use((req, res, next) => {
   // whichever url does not involve sockets, throw it into the array and test
   let irrelevant = [
@@ -85,7 +81,7 @@ app.use((req, res, next) => {
   ];
   // if user is true
   if (req.user) {
-    console.log(activeUsers);
+    console.log(activeUsers)
     if (irrelevant.includes(req.url) && activeUsers.length == 1) {
       console.log('All sockets are disconnected')
       console.log("server is closed");
@@ -102,8 +98,11 @@ app.use((req, res, next) => {
   }
   next();
 });
+// socket io
+socketIoStart(io);
 
-// read cursewords into and store in an array
+
+// read cursewords.json & route
 app.route("/words/curse").get((req, res) => {
   let string = JSON.parse(
     fs.readFileSync(path.resolve(__dirname, "lib/cursewords.json"), {
@@ -119,6 +118,8 @@ app.route("/words/curse").get((req, res) => {
     res.json({ words: words });
   }
 });
+
+
 
 app.route("/").get((req, res) => {
   if (req.isAuthenticated()) {
@@ -149,8 +150,6 @@ app.get("/logout", checkAuthenticated, (req, res) => {
 
   for (let i = 0; i < activeUsers.length; i++) {
     if (activeUsers[i].id == user.id) {
-      console.log("user on logout");
-      console.log(activeUsers[i]);
       activeUsers.splice(activeUsers.indexOf(activeUsers[i], 1));
     }
   }
@@ -160,11 +159,12 @@ app.get("/logout", checkAuthenticated, (req, res) => {
   req.logout(() => {
     res.redirect("/");
   });
-  console.log(req.user);
 });
 
+
+
 // clear rooms
-app.route("/rooms/clear").get(checkAuthenticated, (req, res) => {
+app.route("/room/clear").get(checkAuthenticated, (req, res) => {
   rooms = [];
   for (let property in messages) {
     if (messages.hasOwnProperty(property)) {
@@ -174,7 +174,7 @@ app.route("/rooms/clear").get(checkAuthenticated, (req, res) => {
   res.redirect("/home");
 });
 // create a room
-app.post("/create/room", checkAuthenticated, (req, res) => {
+app.post("/room/create", checkAuthenticated, (req, res) => {
   console.log(req.body.room);
   let { room } = req.body;
   messages[room] = [];
@@ -238,19 +238,16 @@ app.get("/:room/sec/messages", (req, res) => {
   }
   // res.redirect('/room/'+room)
 });
-app.get("/api/sec", checkAuthenticated, (req, res) => {});
-// chat page GET
-// app.route("/chat").get(checkAuthenticated, (req, res) => {
-//   res.sendFile(path.resolve(__dirname, "../client/public/chat.html"));
-// });
 
-// socket io
-socketIoStart(io);
+
+
+
 
 // app listen
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
 });
+
 
 // 404
 app.use(function (req, res) {

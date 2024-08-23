@@ -1,4 +1,6 @@
 const public = "public_message";
+const sending = "send_it";
+const typing = "typing";
 const socketIoStart = (io) => {
   // Initiate socket connection
   io.on("connection", (socket) => {
@@ -33,7 +35,13 @@ const socketIoStart = (io) => {
       // send to the current room, but cannot see your own message
       // socket.to(currentroom).emit('send_it', msg, user['name']);
       // similar to socket.broadcast.emit(event)
-      io.to(currentroom).emit("send_it", msg, user["name"]);
+      io.to(currentroom).emit(sending, msg, user["name"]);
+    });
+
+    // typing passes true/false
+    socket.on(typing, (bool, currentroom) => {
+      console.log(bool);
+      io.to(currentroom).emit(typing, bool);
     });
 
     // disconnect socket

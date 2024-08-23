@@ -86,7 +86,7 @@
     console.log(value);
     let payload = { room: value };
     // create new room
-    await fetch("/create/room", {
+    await fetch("/room/create", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify(payload),

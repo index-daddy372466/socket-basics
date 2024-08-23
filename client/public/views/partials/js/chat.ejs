@@ -11,6 +11,9 @@
   let submit = document.getElementById("submit");
   let chatbox = document.getElementById("chats");
   let header = document.querySelector("#room-header>em");
+  let typing = false;
+  let timeout = undefined;
+
   // ejs rendered variable
   const roomname = "<%= room %>";
 
@@ -23,6 +26,7 @@
 
   // show room header
   window.onload = async (e) => {
+    text.focus();
     let mainheader = header.parentElement;
     mainheader.classList.toggle("appear-header");
 
@@ -56,6 +60,19 @@
     });
   };
 
+  text.onkeypress = (e) => {
+    if (e.which != 13) {
+      typing = true;
+      socket.emit("typing", typing);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        typing = false;
+        socket.emit("typing", typing);
+      }, 3000);
+    } else {
+      clearTimeout(timeout);
+    }
+  };
   let sameSender = false; // verify if the sender if you
   // submit onclick
   submit.onclick = (e) => {
