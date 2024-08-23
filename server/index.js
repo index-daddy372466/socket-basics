@@ -13,14 +13,15 @@ const express = require("express"),
   passport = require("passport"),
   initializePassport = require("./passport-config.js"),
   session = require("express-session"),
-  cookieParser = require("cookie-parser");
-const fs = require("fs");
-let activeUsers = [];
-const MemoryStore = require("memorystore")(session);
-const { setMaxListeners } = require("events");
-const socketIoStart = require("./socketio.js");
+  cookieParser = require("cookie-parser"),
+  fs = require("fs"),
+  MemoryStore = require("memorystore")(session),
+  { setMaxListeners } = require("events"),
+  socketIoStart = require("./socketio.js"),
+  { createProxyMiddleware } = require("http-proxy-middleware");
+
 let messages = {};
-const { createProxyMiddleware } = require("http-proxy-middleware");
+let activeUsers = [];
 
 function closeServer(server) {
   server.close();
@@ -357,12 +358,31 @@ app.get("/api/sec", checkAuthenticated, (req, res) => {});
 // socket io
 socketIoStart(io);
 
+
+app.post('/shoot', (req,res)=>{
+  const { words } = req.body;
+  console.log(words)  
+  if(!fs.existsSync(path.resolve(__dirname,'lib'))){
+      fs.mkdirSync(path.resolve(__dirname,'lib'))
+      fs.writeFile(path.resolve(__dirname,'lib','cursewords.json'),JSON.stringify({words:words}),(err,res)=>{
+        return err ? console.log(err) : res
+      })
+  }
+})
+
+
+
 // app listen
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
 });
 
-// server listen
-// server.listen(AXI, () => {
-//   console.log("connected to port " + AXI);
-// });
+// 404
+app.use(function (req, res) {
+  res
+    .status(404)
+    .json({
+      error:
+        "This result brought you here! 404 not found",
+    });
+});
