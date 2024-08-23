@@ -108,45 +108,17 @@
   async function checkCurseWords(val) {
     // get wiki curse words
     console.log("checking if " + val + " is a curseword...");
-    let wikicurse = await fetch("/wiki/curse")
+    let curses = await fetch("/words/curse")
       .then((r) => r.json())
       .then((d) => d.words);
-
-    // get deadspin cursewords
-    let deadcurse = await fetch("/deadspin/curse")
-      .then((r) => r.json())
-      .then((d) => d.words);
-
     // get full length of arrays
-    let len = wikicurse.length + deadcurse.length;
-    console.log(len);
-    if (combine.length == 0 || combine.length < len) {
-      combine.push(...wikicurse, ...deadcurse);
-    }
+    let len = curses.length
 
-    // filter out duplicate cursewords
-    combine = combine.filter((w, i) => i == combine.indexOf(w));
-
-    // fire filtered words and write into memory
-    await fetch('/shoot',{headers:{'Content-Type':'application/json'},body:JSON.stringify({words:combine}),method:'POST'})
-
-    console.log(combine);
-    // console.log(combine.length)
-
-    if (cursewords == "nothing here" && deadcurse == "nothing here") {
-      return false;
-    } else {
-      let bool = [...combine].filter((word, idx) => {
+      let bool = [...curses].filter((word, idx) => {
         let reg = new RegExp(`${word}`, "ig");
         return combine.includes(val) || reg.test(val);
       });
-      
-
-
-
-
       return bool.length > 0;
-    }
   }
 
   // function to append li's to ul

@@ -17,11 +17,11 @@ const express = require("express"),
   fs = require("fs"),
   MemoryStore = require("memorystore")(session),
   { setMaxListeners } = require("events"),
-  socketIoStart = require("./socketio.js"),
-  { createProxyMiddleware } = require("http-proxy-middleware");
+  socketIoStart = require("./socketio.js");
 
-let messages = {};
-let activeUsers = [];
+let messages = {},
+  activeUsers = [],
+  rooms = [];
 
 function closeServer(server) {
   server.close();
@@ -87,7 +87,8 @@ app.use((req, res, next) => {
   if (req.user) {
     console.log(activeUsers);
     if (irrelevant.includes(req.url) && activeUsers.length == 1) {
-      console.log("server is closing");
+      console.log('All sockets are disconnected')
+      console.log("server is closed");
       closeServer(server);
     } else {
       if (!server.listening) {
@@ -99,8 +100,24 @@ app.use((req, res, next) => {
   } else {
     console.log("socket is not running");
   }
-
   next();
+});
+
+// read cursewords into and store in an array
+app.route("/words/curse").get((req, res) => {
+  let string = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, "lib/cursewords.json"), {
+      encoding: "utf-8",
+    })
+  );
+  const { words } = string;
+  const alternate = { words: ["fuck", "shit", "fag"] };
+
+  if (!words) {
+    res.json(alternate);
+  } else {
+    res.json({ words: words });
+  }
 });
 
 app.route("/").get((req, res) => {
@@ -113,133 +130,6 @@ app.route("/").get((req, res) => {
 // home page GET
 app.route("/home").get(checkAuthenticated, (req, res) => {
   res.render("home.ejs");
-});
-
-// storage for cursewords
-let deadcurse = [];
-
-// curse words from deadspin
-app.get("/deadspin/write", checkAuthenticated, async (req, res) => {
-  // testing to write a clone files from wikipedia page swear words
-  try {
-    let filename = "/deadspin.ejs";
-    let file = await fetch(
-      "https://deadspin.com/behold-the-ultimate-curse-word-bracket-457043269/"
-    )
-      .then((r) => r.text())
-      .then((d) => {
-        return d;
-      });
-    console.log(
-      fs.existsSync(
-        path.resolve(__dirname, "../client/public/views/" + filename)
-      )
-    );
-    if (
-      !fs.existsSync(
-        path.resolve(__dirname, "../client/public/views/" + filename)
-      )
-    ) {
-      fs.writeFileSync(
-        Buffer.from(
-          path.resolve(__dirname, "../client/public/views/" + filename)
-        ),
-        file,
-        { encoding: "utf-8" }
-      );
-    }
-    res.redirect("/");
-  } catch (err) {
-    console.log(err);
-  }
-});
-// deadspin page GET
-// if wiki file exists
-app.route("/deadspin/clone").get(checkAuthenticated, (req, res) => {
-  res.render("deadspin.ejs");
-});
-// post curse words
-app.post("/deadspin/curse", checkAuthenticated, (req, res) => {
-  const { words } = req.body; // array of curse words
-  // console.log(words);
-  if (words.length < 1) {
-    res.json({ words: "no words" });
-  } else {
-    if (deadcurse.length < 1) {
-      deadcurse.push(...words);
-      deadcurse = deadcurse.slice(1, deadcurse.length);
-    }
-    res.json({ words: deadcurse.flat() });
-  }
-});
-// get curse words
-app.get("/deadspin/curse", (req, res) => {
-  res.json({
-    words: deadcurse.length < 1 ? "nothing here" : deadcurse.flat(),
-  });
-});
-
-// storage for cursewords
-let wikicurse = [];
-// spawn wiki by writing file from url
-app.get("/wiki/write", checkAuthenticated, async (req, res) => {
-  // testing to write a clone files from wikipedia page swear words
-  try {
-    let filename = "/wiki.ejs";
-    let file = await fetch(
-      "https://en.wiktionary.org/wiki/Category:English_swear_words"
-    )
-      .then((r) => r.text())
-      .then((d) => {
-        return d;
-      });
-    console.log(
-      fs.existsSync(
-        path.resolve(__dirname, "../client/public/views/" + filename)
-      )
-    );
-    if (
-      !fs.existsSync(
-        path.resolve(__dirname, "../client/public/views/" + filename)
-      )
-    ) {
-      fs.writeFileSync(
-        Buffer.from(
-          path.resolve(__dirname, "../client/public/views/" + filename)
-        ),
-        file,
-        { encoding: "utf-8" }
-      );
-    }
-    res.redirect("/");
-  } catch (err) {
-    console.log(err);
-  }
-});
-// wiki page GET
-// if wiki file exists
-app.route("/wiki/clone").get(checkAuthenticated, (req, res) => {
-  res.render("wiki.ejs");
-});
-// post curse words
-app.post("/wiki/curse", checkAuthenticated, (req, res) => {
-  const { words } = req.body; // array of curse words
-  // console.log(words);
-  if (words.length < 1) {
-    res.json({ words: "no words" });
-  } else {
-    if (wikicurse.length < 1) {
-      wikicurse.push(...words);
-      wikicurse = wikicurse.slice(1, wikicurse.length);
-    }
-    res.json({ words: wikicurse.flat() });
-  }
-});
-// get curse words
-app.get("/wiki/curse", (req, res) => {
-  res.json({
-    words: wikicurse.length < 1 ? "nothing here" : wikicurse.flat(),
-  });
 });
 
 // login page
@@ -273,7 +163,6 @@ app.get("/logout", checkAuthenticated, (req, res) => {
   console.log(req.user);
 });
 
-let rooms = [];
 // clear rooms
 app.route("/rooms/clear").get(checkAuthenticated, (req, res) => {
   rooms = [];
@@ -358,20 +247,6 @@ app.get("/api/sec", checkAuthenticated, (req, res) => {});
 // socket io
 socketIoStart(io);
 
-
-app.post('/shoot', (req,res)=>{
-  const { words } = req.body;
-  console.log(words)  
-  if(!fs.existsSync(path.resolve(__dirname,'lib'))){
-      fs.mkdirSync(path.resolve(__dirname,'lib'))
-      fs.writeFile(path.resolve(__dirname,'lib','cursewords.json'),JSON.stringify({words:words}),(err,res)=>{
-        return err ? console.log(err) : res
-      })
-  }
-})
-
-
-
 // app listen
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
@@ -379,10 +254,7 @@ app.listen(PORT, () => {
 
 // 404
 app.use(function (req, res) {
-  res
-    .status(404)
-    .json({
-      error:
-        "This result brought you here! 404 not found",
-    });
+  res.status(404).json({
+    error: "This result brought you here! 404 not found",
+  });
 });
