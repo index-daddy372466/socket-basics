@@ -1,5 +1,4 @@
 const LocalStrategy = require("passport-local").Strategy;
-const crypto = require('crypto')
 const Users = [
   {
     id: 1,
@@ -36,7 +35,7 @@ const getUserByName = (name) => {
 const getUserById = (id) => {
   return Users.find((user) => user.id === id); // returns user object
 };
-function initialize(passport){
+function initialize(passport,activeUsers){
   passport.use(
     new LocalStrategy(
       {
@@ -56,8 +55,9 @@ function initialize(passport){
             done(null, false, { message: "wrong password" });
           }
         else{
-          user.password = crypto.hash('sha1',password)
-          const payload = { id: user.id, name: user.name, password:user.password };
+
+          const payload = { id: user.id, name: user.name };
+          activeUsers.push(payload)
           console.log('login success')
           done(null, payload);
         }

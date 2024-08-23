@@ -1,5 +1,10 @@
 <script>
-  let socket = io();
+  window.onload = (e) => {
+    window.location.port = "4448";
+    console.log(window.location);
+  };
+  let socket = io.connect(":4448");
+
   // declare form & text-input
   let form = document.getElementById("form");
   let text = document.getElementById("text");
@@ -41,7 +46,9 @@
               !sameSender
                 ? li.classList.add("left")
                 : li.classList.add("right");
-              li.textContent = msg.message + ` [${msg.sender}]`;
+              li.textContent = li.classList.contains("right")
+                ? msg.message + ` [${msg.sender}]`
+                : `[${msg.sender}] ` + msg.message;
               chatbox.appendChild(li);
             });
           }
@@ -75,7 +82,9 @@
     // once the li is created, text-align start/end based off of receiver/sender respectively
     !sameSender ? li.classList.add("left") : li.classList.add("right");
     sameSender = false;
-    li.textContent = msg + ` [${name}]`;
+    li.textContent = li.classList.contains("right")
+      ? msg + ` [${name}]`
+      : `[${name}] ` + msg;
     chatbox.appendChild(li);
   });
 </script>

@@ -5,19 +5,26 @@ const express = require("express"),
   server = http.createServer(app),
   { Server } = require("socket.io"),
   io = new Server(server),
-  PORT = 4447,
+  PORT = !process.env.PORT ? 4447 : process.env.PORT,
+  AXI = !process.env._AXI_ ? 4448 : process.env._AXI_,
   path = require("path"),
+  cors = require("cors"),
   connection = "Connected to " + PORT,
   passport = require("passport"),
   initializePassport = require("./passport-config.js"),
   session = require("express-session"),
   cookieParser = require("cookie-parser");
 const fs = require("fs");
-
+let activeUsers = [];
 const MemoryStore = require("memorystore")(session);
 const { setMaxListeners } = require("events");
 const socketIoStart = require("./socketio.js");
 let messages = {};
+const { createProxyMiddleware } = require("http-proxy-middleware");
+
+function closeServer(server) {
+  server.close();
+}
 
 const checkAuthenticated = (req, res, next) => {
   if (req.user) {
@@ -50,10 +57,10 @@ const sessionMiddleware = session({
   saveUninitialized: false,
 });
 // middleware
-
+app.use(cors());
 app.set("views", path.resolve(__dirname, "../client/public/views"));
 app.set("view engine", "ejs");
-initializePassport(passport);
+initializePassport(passport, activeUsers);
 // pass static html/css
 // app.use(express.static("client/public"));
 app.use(express.json());
@@ -65,7 +72,36 @@ app.use(passport.initialize());
 app.use(passport.session());
 io.engine.use(sessionMiddleware);
 
-// home (conditional)
+app.use((req, res, next) => {
+  // whichever url does not involve sockets, throw it into the array and test
+  let irrelevant = [
+    "/login",
+    "/",
+    "/login-attempt",
+    "/room/sec/messages",
+    "/room/existing",
+    "/home",
+  ];
+  // if user is true
+  if (req.user) {
+    console.log(activeUsers);
+    if (irrelevant.includes(req.url) && activeUsers.length == 1) {
+      console.log("server is closing");
+      closeServer(server);
+    } else {
+      if (!server.listening) {
+        server.listen(AXI, () => {
+          console.log("server listening on port " + AXI);
+        });
+      }
+    }
+  } else {
+    console.log("socket is not running");
+  }
+
+  next();
+});
+
 app.route("/").get((req, res) => {
   if (req.isAuthenticated()) {
     res.redirect("/home");
@@ -218,6 +254,18 @@ app.route("/login-attempt").post(
 );
 // logout GET
 app.get("/logout", checkAuthenticated, (req, res) => {
+  let user = req.user;
+
+  for (let i = 0; i < activeUsers.length; i++) {
+    if (activeUsers[i].id == user.id) {
+      console.log("user on logout");
+      console.log(activeUsers[i]);
+      activeUsers.splice(activeUsers.indexOf(activeUsers[i], 1));
+    }
+  }
+  console.log("");
+  console.log("remaining active users");
+  console.log(activeUsers);
   req.logout(() => {
     res.redirect("/");
   });
@@ -226,7 +274,7 @@ app.get("/logout", checkAuthenticated, (req, res) => {
 
 let rooms = [];
 // clear rooms
-app.route("/rooms/clear").get((req, res) => {
+app.route("/rooms/clear").get(checkAuthenticated, (req, res) => {
   rooms = [];
   for (let property in messages) {
     if (messages.hasOwnProperty(property)) {
@@ -255,7 +303,7 @@ app.post("/create/room", checkAuthenticated, (req, res) => {
   }
 });
 // exisiting rooms
-app.get("/room/exisiting", checkAuthenticated, (req, res) => {
+app.get("/room/existing", checkAuthenticated, (req, res) => {
   let roomData = [...rooms];
   if (rooms.length < 1) {
     res.json({ room: "no data" });
@@ -300,7 +348,7 @@ app.get("/:room/sec/messages", (req, res) => {
   }
   // res.redirect('/room/'+room)
 });
-
+app.get("/api/sec", checkAuthenticated, (req, res) => {});
 // chat page GET
 // app.route("/chat").get(checkAuthenticated, (req, res) => {
 //   res.sendFile(path.resolve(__dirname, "../client/public/chat.html"));
@@ -310,11 +358,11 @@ app.get("/:room/sec/messages", (req, res) => {
 socketIoStart(io);
 
 // app listen
-// app.listen(PORT, () => {
-//   console.log(`listening on port ${PORT}`);
-// });
+app.listen(PORT, () => {
+  console.log(`listening on port ${PORT}`);
+});
 
 // server listen
-server.listen(PORT, () => {
-  console.log(connection);
-});
+// server.listen(AXI, () => {
+//   console.log("connected to port " + AXI);
+// });

@@ -10,6 +10,11 @@
 
   // set tile positions
   window.onload = async (e) => {
+    if(window.location.port!=4447){
+      window.location.port = 4447
+    console.log(window.location)
+    }
+
     tiles = [...tiles].map((t, index) => {
       t.style.width = `${document.body.clientWidth / tiles.length}px`;
       t.style.height = `50%`;
@@ -18,7 +23,7 @@
 
     // get exisitng rooms
     // fetch existing
-    let existing = await fetch("/room/exisiting")
+    let existing = await fetch("/room/existing")
       .then((r) => r.json())
       .then((d) => d.room);
     if (existing !== "no data") {
