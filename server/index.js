@@ -17,6 +17,7 @@ const fs = require("fs");
 const MemoryStore = require("memorystore")(session);
 const { setMaxListeners } = require("events");
 const socketIoStart = require("./socketio.js");
+let messages = []
 
 const checkAuthenticated = (req, res, next) => {
   if (req.user) {
@@ -124,7 +125,7 @@ app.route("/deadspin/clone").get(checkAuthenticated, (req, res) => {
 // post curse words
 app.post("/deadspin/curse", checkAuthenticated, (req, res) => {
   const { words } = req.body; // array of curse words
-  console.log(words);
+  // console.log(words);
   if (words.length < 1) {
     res.json({ words: "no words" });
   } else {
@@ -188,7 +189,7 @@ app.route("/wiki/clone").get(checkAuthenticated, (req, res) => {
 // post curse words
 app.post("/wiki/curse", checkAuthenticated, (req, res) => {
   const { words } = req.body; // array of curse words
-  console.log(words);
+  // console.log(words);
   if (words.length < 1) {
     res.json({ words: "no words" });
   } else {
@@ -210,7 +211,7 @@ app.get("/wiki/curse", (req, res) => {
 // login page
 app.route("/login").get(checkNotAuthenticated, (req, res) => {
   res.sendFile(path.resolve(__dirname, "../client/public/index.html"));
-});
+}); 
 // login attempt
 app.route("/login-attempt").post(
   passport.authenticate("local", {
@@ -231,12 +232,14 @@ let rooms = [];
 // clear rooms
 app.route("/rooms/clear").get((req, res) => {
   rooms = [];
+  messages = []
   res.redirect("/home");
 });
 // create a room
 app.post("/create/room", checkAuthenticated, (req, res) => {
   console.log(req.body.room);
   let { room } = req.body;
+  messages[room] = []
   // console.log("room on post");
   // console.log(room);
   try {
@@ -276,7 +279,15 @@ app.get("/room/:room", checkAuthenticated, (req, res) => {
     });
   }
 });
-
+// store messages in fake db
+app.get('/room/:room/:message', (req,res)=>{
+  const { room, message } = req.params;
+  // push message into array;
+  messages = [...messages,message]
+  // messages[room].push(message);
+  // res.json({messages:messages[room]})
+  // res.redirect('/room/'+room)
+})
 
 // chat page GET
 // app.route("/chat").get(checkAuthenticated, (req, res) => {

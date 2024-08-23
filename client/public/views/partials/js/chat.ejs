@@ -9,24 +9,22 @@
     let header = document.querySelector('#room-header>em')
     // ejs rendered variable
     const roomname = '<%= room %>'
+  console.log(roomname)
 
-    socket.emit('join_room',roomname)
-    
+    socket.on('connect',function(){
+      // welcome message
+     // client sends request to server
+     socket.emit('welcome',roomname)
+     socket.emit('join_room',roomname)
+
+    })
+
 
     // show room header 
     window.onload = e => {
         let mainheader = header.parentElement;
         mainheader.classList.toggle('appear-header')
     }
-
-
-     // welcome message
-     // client sends request to server
-     socket.emit('welcome',roomname)
-    // server sends message back to client
-     socket.on('welcome', msg => {
-        console.log(msg)
-    })
 
     // join Room
     // socket.emit('join_room',roomname)
@@ -45,12 +43,15 @@
           sameSender = true;
             e.preventDefault();
             if(text.value){
+              // post/get message
+                fetch(`/room/${roomname}/${text.value}`).then(r=>r.json()).then(d=>console.log(d))
                 socket.emit('public_message',text.value,roomname);
                 text.value = ''
             }
         }
         // append li to chatbox
-        socket.on('public_message',(msg,name) => {
+       
+          socket.on('send_it',(msg,name) => {
             console.log(msg)
             console.log(name)
           let li = document.createElement('li')
@@ -61,6 +62,7 @@
           li.textContent = msg + `[${name}]`;
           chatbox.appendChild(li)
         })
+        
 
     
 
