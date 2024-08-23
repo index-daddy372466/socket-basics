@@ -17,7 +17,7 @@ const fs = require("fs");
 const MemoryStore = require("memorystore")(session);
 const { setMaxListeners } = require("events");
 const socketIoStart = require("./socketio.js");
-let messages = []
+let messages = {}
 
 const checkAuthenticated = (req, res, next) => {
   if (req.user) {
@@ -232,7 +232,11 @@ let rooms = [];
 // clear rooms
 app.route("/rooms/clear").get((req, res) => {
   rooms = [];
-  messages = []
+  for(let property in messages){
+    if(messages.hasOwnProperty(property)){
+      delete messages[property];
+    }
+  }
   res.redirect("/home");
 });
 // create a room
@@ -283,9 +287,10 @@ app.get("/room/:room", checkAuthenticated, (req, res) => {
 app.get('/room/:room/:message', (req,res)=>{
   const { room, message } = req.params;
   // push message into array;
-  messages = [...messages,message]
-  // messages[room].push(message);
-  // res.json({messages:messages[room]})
+  // messages = [...messages,message]
+    // res.json({messages:messages})
+  messages[room] = [...messages[room],message]
+  res.json({messages:messages[room]})
   // res.redirect('/room/'+room)
 })
 
