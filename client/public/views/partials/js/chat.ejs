@@ -1,69 +1,81 @@
-
 <script>
-    let socket = io();
-    // declare form & text-input
-    let form = document.getElementById('form')
-    let text = document.getElementById('text')
-    let submit = document.getElementById('submit')
-    let chatbox = document.getElementById('chats')
-    let header = document.querySelector('#room-header>em')
-    // ejs rendered variable
-    const roomname = '<%= room %>'
-  console.log(roomname)
+  let socket = io();
+  // declare form & text-input
+  let form = document.getElementById("form");
+  let text = document.getElementById("text");
+  let submit = document.getElementById("submit");
+  let chatbox = document.getElementById("chats");
+  let header = document.querySelector("#room-header>em");
+  // ejs rendered variable
+  const roomname = "<%= room %>";
 
-    socket.on('connect',function(){
-      // welcome message
-     // client sends request to server
-     socket.emit('welcome',roomname)
-     socket.emit('join_room',roomname)
+  socket.on("connect", function () {
+    // welcome message
+    // client sends request to server
+    socket.emit("welcome", roomname);
+    socket.emit("join_room", roomname);
+  });
 
-    })
+  // show room header
+  window.onload = async (e) => {
+    let mainheader = header.parentElement;
+    mainheader.classList.toggle("appear-header");
 
+    // retrieve user's name from socket
+    socket.on("get_name", async (name) => {
+      // fetch for existing chats & append to chatbox
+      // get existing messages
+      let chats = await fetch(`/${roomname}/sec/messages`)
+        .then((r) => r.json())
+        .then((d) => {
+          console.log(d);
+          if (d.messages !== "no messages") {
+            let messages = [...d.messages];
 
-    // show room header 
-    window.onload = e => {
-        let mainheader = header.parentElement;
-        mainheader.classList.toggle('appear-header')
+            console.log(messages);
+
+            messages.map((msg, index) => {
+              sameSender = msg["sender"] === name;
+              let li = document.createElement("li");
+              li.classList.add("list-item");
+              !sameSender
+                ? li.classList.add("left")
+                : li.classList.add("right");
+              li.textContent = msg.message + ` [${msg.sender}]`;
+              chatbox.appendChild(li);
+            });
+          }
+        });
+    });
+  };
+
+  let sameSender = false; // verify if the sender if you
+  // submit onclick
+  submit.onclick = (e) => {
+    console.log("scrollHeight");
+    console.log(chatbox.scrollHeight + 100);
+    chatbox.scrollTop = chatbox.scrollHeight - chatbox.clientHeight;
+    setTimeout(() => chatbox.scrollTo(0, chatbox.clientHeight), 250);
+    sameSender = true;
+    e.preventDefault();
+    if (text.value) {
+      // get existing messages
+      fetch(`/room/${roomname}/${text.value}`)
+        .then((r) => r.json())
+        .then((d) => console.log(d));
+      socket.emit("public_message", text.value, roomname);
+      text.value = "";
     }
+  };
+  // append li to chatbox
 
-    // join Room
-    // socket.emit('join_room',roomname)
-
-    chatbox.onscroll = e => {
-        console.log('chatbox ' + 'scrollHeight')
-        console.log(chatbox.scrollHeight)
-      }
-        let sameSender= false; // verify if the sender if you
-        // submit onclick
-        submit.onclick=e=>{
-          console.log('scrollHeight')
-          console.log(chatbox.scrollHeight+100)
-          chatbox.scrollTop = chatbox.scrollHeight - chatbox.clientHeight;
-          setTimeout(()=>chatbox.scrollTo(0,chatbox.clientHeight),250)
-          sameSender = true;
-            e.preventDefault();
-            if(text.value){
-              // post/get message
-                fetch(`/room/${roomname}/${text.value}`).then(r=>r.json()).then(d=>console.log(d))
-                socket.emit('public_message',text.value,roomname);
-                text.value = ''
-            }
-        }
-        // append li to chatbox
-       
-          socket.on('send_it',(msg,name) => {
-            console.log(msg)
-            console.log(name)
-          let li = document.createElement('li')
-          li.classList.add('list-item')
-          // once the li is created, text-align start/end based off of receiver/sender respectively
-          !sameSender ? li.classList.add('left') : li.classList.add('right')
-          sameSender = false;
-          li.textContent = msg + `[${name}]`;
-          chatbox.appendChild(li)
-        })
-        
-
-    
-
- </script>
+  socket.on("send_it", (msg, name) => {
+    let li = document.createElement("li");
+    li.classList.add("list-item");
+    // once the li is created, text-align start/end based off of receiver/sender respectively
+    !sameSender ? li.classList.add("left") : li.classList.add("right");
+    sameSender = false;
+    li.textContent = msg + ` [${name}]`;
+    chatbox.appendChild(li);
+  });
+</script>

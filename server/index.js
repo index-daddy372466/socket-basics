@@ -17,7 +17,7 @@ const fs = require("fs");
 const MemoryStore = require("memorystore")(session);
 const { setMaxListeners } = require("events");
 const socketIoStart = require("./socketio.js");
-let messages = {}
+let messages = {};
 
 const checkAuthenticated = (req, res, next) => {
   if (req.user) {
@@ -64,7 +64,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 io.engine.use(sessionMiddleware);
-
 
 // home (conditional)
 app.route("/").get((req, res) => {
@@ -143,7 +142,6 @@ app.get("/deadspin/curse", (req, res) => {
   });
 });
 
-
 // storage for cursewords
 let wikicurse = [];
 // spawn wiki by writing file from url
@@ -207,11 +205,10 @@ app.get("/wiki/curse", (req, res) => {
   });
 });
 
-
 // login page
 app.route("/login").get(checkNotAuthenticated, (req, res) => {
   res.sendFile(path.resolve(__dirname, "../client/public/index.html"));
-}); 
+});
 // login attempt
 app.route("/login-attempt").post(
   passport.authenticate("local", {
@@ -227,13 +224,12 @@ app.get("/logout", checkAuthenticated, (req, res) => {
   console.log(req.user);
 });
 
-
 let rooms = [];
 // clear rooms
 app.route("/rooms/clear").get((req, res) => {
   rooms = [];
-  for(let property in messages){
-    if(messages.hasOwnProperty(property)){
+  for (let property in messages) {
+    if (messages.hasOwnProperty(property)) {
       delete messages[property];
     }
   }
@@ -243,7 +239,7 @@ app.route("/rooms/clear").get((req, res) => {
 app.post("/create/room", checkAuthenticated, (req, res) => {
   console.log(req.body.room);
   let { room } = req.body;
-  messages[room] = []
+  messages[room] = [];
   // console.log("room on post");
   // console.log(room);
   try {
@@ -284,15 +280,26 @@ app.get("/room/:room", checkAuthenticated, (req, res) => {
   }
 });
 // store messages in fake db
-app.get('/room/:room/:message', (req,res)=>{
+app.get("/room/:room/:message", (req, res) => {
   const { room, message } = req.params;
   // push message into array;
   // messages = [...messages,message]
-    // res.json({messages:messages})
-  messages[room] = [...messages[room],message]
-  res.json({messages:messages[room]})
+  // res.json({messages:messages})
+  let obj = { message: message, sender: req.user.name };
+  messages[room] = [...messages[room], obj];
+  res.json({ messages: messages[room] });
   // res.redirect('/room/'+room)
-})
+});
+// get messages in fake db
+app.get("/:room/sec/messages", (req, res) => {
+  const { room } = req.params;
+  if (messages[room].length > 0) {
+    res.json({ messages: messages[room] });
+  } else {
+    res.json({ messages: "no messages" });
+  }
+  // res.redirect('/room/'+room)
+});
 
 // chat page GET
 // app.route("/chat").get(checkAuthenticated, (req, res) => {
@@ -301,7 +308,6 @@ app.get('/room/:room/:message', (req,res)=>{
 
 // socket io
 socketIoStart(io);
-
 
 // app listen
 // app.listen(PORT, () => {
