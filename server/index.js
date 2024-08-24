@@ -17,6 +17,10 @@ const express = require("express"),
   MemoryStore = require("memorystore")(session),
   { setMaxListeners } = require("events"),
   socketIoStart = require("./socketio.js");
+const { createProxyMiddleware }=require('http-proxy-middleware');
+    app.use('/api/docker',createProxyMiddleware({target:'http://localhost:6786/api/docker'}));
+    app.use('/api/home',createProxyMiddleware({target:'http://localhost:6786/api/home'}));
+    app.use('/api/numbers',createProxyMiddleware({target:'http://localhost:6786/api/numbers'}));
 
 let messages = {},
   activeUsers = [],

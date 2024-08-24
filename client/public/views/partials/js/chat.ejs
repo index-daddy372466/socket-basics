@@ -1,4 +1,7 @@
 <script>
+// fetch docker api
+fetch('/api/numbers').then(r=>r.json()).then(d=>console.log(d.numbers))
+
   window.onload = (e) => {
     window.location.port = "4448";
     console.log(window.location);
