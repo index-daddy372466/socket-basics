@@ -11,6 +11,7 @@
   let submit = document.getElementById("submit");
   let chatbox = document.getElementById("chats");
   let header = document.querySelector("#room-header>em");
+  let keyboard = document.querySelector("svg#type-keyboard");
   let typing = false;
   let timeout = undefined;
 
@@ -40,9 +41,6 @@
           console.log(d);
           if (d.messages !== "no messages") {
             let messages = [...d.messages];
-
-            console.log(messages);
-
             messages.map((msg, index) => {
               sameSender = msg["sender"] === name;
               let li = document.createElement("li");
@@ -59,19 +57,33 @@
         });
     });
   };
+  let control = undefined;
 
+  // user is typing to the server
   text.onkeypress = (e) => {
     if (e.which != 13) {
       typing = true;
-      socket.emit("typing", typing);
+      socket.emit("typing", typing, roomname);
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         typing = false;
-        socket.emit("typing", typing);
-      }, 3000);
+        socket.emit("typing", typing, roomname);
+      }, 1750);
     } else {
       clearTimeout(timeout);
     }
+    socket.on("typing", (bool, name) => {
+      if (bool == true) {
+        console.log(keyboard);
+        keyboard.classList.remove("type-hidden");
+        keyboard.classList.add("type-appear");
+  
+      } else {
+        keyboard.classList.remove("type-appear");
+        keyboard.classList.add("type-hidden");
+      }
+
+    });
   };
   let sameSender = false; // verify if the sender if you
   // submit onclick
@@ -91,8 +103,8 @@
       text.value = "";
     }
   };
-  // append li to chatbox
 
+  // append li to chatbox
   socket.on("send_it", (msg, name) => {
     let li = document.createElement("li");
     li.classList.add("list-item");

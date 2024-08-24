@@ -1,113 +1,160 @@
 <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-   
-    .block-header{
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .block-header {
+    opacity: 0;
+  }
+  .appear-header {
+    transition: 2.5s;
+    opacity: 0.88;
+  }
+
+  #type-container {
+    position: absolute;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    justify-content: center;
+    bottom: 25px;
+    left: 50px;
+  }
+  #type-keyboard,
+  .type-up {
+    position: absolute;
+  }
+
+  .type-appear{
+    opacity:0;
+    animation:typing 1s infinite alternate forwards;
+  }
+  @keyframes typing {
+    from{
       opacity:0;
     }
-    .appear-header{
-      transition:2.5s;
+    to{
       opacity:.88;
     }
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: silver;
-      height: 100vh;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      overflow:hidden;
-    }
-    ul#chats {
-      height: 100%;
-      width: 100%;
-      background: #fff;
-      display:flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: start;
-      gap:2rem;
-      overflow-y:scroll;
-    }
-    .list-item{
-      width:100%;
-      border:3px solid #000;
-      font-size:18px;
-      list-style: none;
-      padding:0 1rem;
-      opacity:0;
-      transition:.5s;
-      animation:appear .5s forwards;
-    }
-    @keyframes appear {
-      from{
-        opacity:0;
-      }
-      to{
-        opacity:1;
-      }
-    }
+  }
 
-    .right{
-      padding-right:1rem;
-      text-align: end;
-      color:#000;
-      background:lightblue;
+
+  .type-hidden {
+    opacity: 0;
+  }
+
+  #type-keyboard {
+    z-index: 999;
+  }
+
+  #up-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 998;
+  }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: silver;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+    position: relative;
+  }
+  ul#chats {
+    height: 100%;
+    width: 100%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    gap: .5rem;
+    overflow-y: scroll;
+    margin-bottom:3rem;
+  }
+  .list-item {
+    width: 100%;
+    border: 3px solid #000;
+    font-size: 18px;
+    list-style: none;
+    padding: 0 1rem;
+    opacity: 0;
+    transition: 0.5s;
+    animation: appear 0.5s forwards;
+  }
+  @keyframes appear {
+    from {
+      opacity: 0;
     }
-    .left{
-      padding-left:1rem;
-      text-align: start;
-      color:#fff;
-      background:darkblue;
+    to {
+      opacity: 1;
     }
-    form#form {
-      width: 100%;
-      border: 3px solid lime;
-      display: flex;
-    }
-    input {
-      height: 50px;
-      border: 3px solid #000;
-    }
-  
-    #home-btn{
-      z-index:998
-    }
-    #home-btn>a{
-      transition:.75s;
-      z-index:999;
-      text-decoration: none;
-      color:#fff;
-      padding:.5rem 1rem;
-      border-radius:12px;
-      background:#000;
-      cursor:pointer;
-    }
-    #home-btn>a:hover{
-      transition:.25s;
-      background:#fff;
-      color:#000;
-    }
-    #text {
-      width: 100%;
-      text-align: center;
-      font-size: 18px;
-    }
-    #submit {
-      width: 150px;
-      transition: 0.5s;
-    }
-    #submit:hover {
-      border: 3px solid #fff;
-      background: #000;
-      color: #fff;
-      transition: 0.25s;
-      cursor: pointer;
-    }
-  </style>
+  }
+
+  .right {
+    padding-right: 1rem;
+    text-align: end;
+    color: #000;
+    background: lightblue;
+  }
+  .left {
+    padding-left: 1rem;
+    text-align: start;
+    color: #fff;
+    background: darkblue;
+  }
+  form#form {
+    width: 100%;
+    border: 3px solid lime;
+    display: flex;
+  }
+  input {
+    height: 50px;
+    border: 3px solid #000;
+  }
+
+  #home-btn {
+    z-index: 998;
+  }
+  #home-btn > a {
+    transition: 0.75s;
+    z-index: 999;
+    text-decoration: none;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    background: #000;
+    cursor: pointer;
+  }
+  #home-btn > a:hover {
+    transition: 0.25s;
+    background: #fff;
+    color: #000;
+  }
+  #text {
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
+  }
+  #submit {
+    width: 150px;
+    transition: 0.5s;
+  }
+  #submit:hover {
+    border: 3px solid #fff;
+    background: #000;
+    color: #fff;
+    transition: 0.25s;
+    cursor: pointer;
+  }
+</style>

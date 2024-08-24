@@ -150,7 +150,8 @@ app.get("/logout", checkAuthenticated, (req, res) => {
 
   for (let i = 0; i < activeUsers.length; i++) {
     if (activeUsers[i].id == user.id) {
-      activeUsers.splice(activeUsers.indexOf(activeUsers[i], 1));
+      console.log(activeUsers[i])
+      activeUsers.splice(activeUsers.indexOf(activeUsers[i]),1);
     }
   }
   console.log("");

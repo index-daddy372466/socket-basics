@@ -7,14 +7,20 @@ const socketIoStart = (io) => {
     // socket joins a room
     socket.on("join_room", (room) => {
       socket.join(room);
+
+      // typing passes true/false
+      socket.on(typing, (bool, currentroom) => {
+        let user = socket.request.session.passport.user;
+        socket.to(currentroom).emit(typing, bool, user["name"]);
+      }); 
     });
 
     // detect if user is logged in or not
-    if (socket.request.session.passport) {
-      console.log("session active");
-    } else {
-      console.log("session not active");
-    }
+    // if (socket.request.session.passport) {
+    //   console.log("session active");
+    // } else {
+    //   console.log("session not active");
+    // }
 
     // welcome message to any rooms (once)
     socket.on("welcome", (room) => {
@@ -36,12 +42,6 @@ const socketIoStart = (io) => {
       // socket.to(currentroom).emit('send_it', msg, user['name']);
       // similar to socket.broadcast.emit(event)
       io.to(currentroom).emit(sending, msg, user["name"]);
-    });
-
-    // typing passes true/false
-    socket.on(typing, (bool, currentroom) => {
-      console.log(bool);
-      io.to(currentroom).emit(typing, bool);
     });
 
     // disconnect socket

@@ -5,17 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= room %> room</title>
   </head>
-<%- include('./partials/css/chat.ejs') %>
+  <%- include('./partials/css/chat.ejs') %>
   <body>
     <!-- header -->
-     <div style="box-shadow:0 .25rem 10px .5px indigo;position:Fixed;opacity:.88;top:0px;height:66px;z-index:999;width:100%;position:relative;background-image:linear-gradient(90deg,pink,lightblue);">
-      <span id="home-btn" class="home" style="position:absolute; top:15px;left:5px;">
+    <div
+      style="
+        box-shadow: 0 0.25rem 10px 0.5px indigo;
+        position: Fixed;
+        opacity: 0.88;
+        top: 0px;
+        height: 66px;
+        z-index: 999;
+        width: 100%;
+        position: relative;
+        background-image: linear-gradient(90deg, pink, lightblue);
+      "
+    >
+      <span
+        id="home-btn"
+        class="home"
+        style="position: absolute; top: 15px; left: 5px"
+      >
         <a href="/home">Leave</a>
       </span>
-      <h1 id="room-header" style="text-align: center;opacity:.88;margin-top:1rem;">Welcome to <em style="color:rgb(127, 126, 126); text-shadow:.5px 0 #333;"><%= room %></em></h1>
-     </div>
+      <h1
+        id="room-header"
+        style="text-align: center; opacity: 0.88; margin-top: 1rem"
+      >
+        Welcome to
+        <em style="color: rgb(127, 126, 126); text-shadow: 0.5px 0 #333"
+          ><%= room %></em
+        >
+      </h1>
+    </div>
     <!-- chatbox -->
-    <ul id="chats" class="messages"></ul>
+    <ul id="chats" class="messages">
+      <div id="type-container">
+        <!-- blinky/typing -->
+        <!-- keyboard -->
+        <svg
+        class="type-hidden"
+          id="type-keyboard"
+          xmlns="http://www.w3.org/2000/svg"
+          height="50px"
+          viewBox="0 -960 960 960"
+          width="50px"
+          fill="#5f6368"
+        >
+          <path
+            d="M160-200q-33 0-56.5-23.5T80-280v-400q0-33 23.5-56.5T160-760h640q33 0 56.5 23.5T880-680v400q0 33-23.5 56.5T800-200H160Zm0-80h640v-400H160v400Zm160-40h320v-80H320v80ZM200-440h80v-80h-80v80Zm120 0h80v-80h-80v80Zm120 0h80v-80h-80v80Zm120 0h80v-80h-80v80Zm120 0h80v-80h-80v80ZM200-560h80v-80h-80v80Zm120 0h80v-80h-80v80Zm120 0h80v-80h-80v80Zm120 0h80v-80h-80v80Zm120 0h80v-80h-80v80ZM160-280v-400 400Z"
+          />
+        </svg>
+        
+      </div>
+    </ul>
 
     <!-- form (chat & send chat) -->
     <form action="" id="form">
@@ -24,7 +67,7 @@
     </form>
 
     <!-- inject clientside io -->
-     <script src="/socket.io/socket.io.js"></script>
-     <%- include('./partials/js/chat.ejs') %>
+    <script src="/socket.io/socket.io.js"></script>
+    <%- include('./partials/js/chat.ejs') %>
   </body>
 </html>
