@@ -23,7 +23,7 @@
 
     // get exisitng rooms
     // fetch existing
-    let existing = await fetch("/room/existing")
+    let existing = await fetch("/rooms/existing")
       .then((r) => r.json())
       .then((d) => d.room);
     if (existing !== "no data") {
@@ -131,7 +131,7 @@
     lis.forEach((l, index) => {
       l.onclick = async (e) => {
         let room = l.textContent;
-        return await fetch("/room/check", {
+        return await fetch("/rooms/check", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -1,6 +1,8 @@
 <script>
-// fetch docker api
-fetch('/api/numbers').then(r=>r.json()).then(d=>console.log(d.numbers))
+  // fetch docker api
+  fetch("/numbers")
+    .then((r) => r.json())
+    .then((d) => console.log(d.numbers));
 
   window.onload = (e) => {
     window.location.port = "4448";
@@ -80,12 +82,10 @@ fetch('/api/numbers').then(r=>r.json()).then(d=>console.log(d.numbers))
         console.log(keyboard);
         keyboard.classList.remove("type-hidden");
         keyboard.classList.add("type-appear");
-  
       } else {
         keyboard.classList.remove("type-appear");
         keyboard.classList.add("type-hidden");
       }
-
     });
   };
   let sameSender = false; // verify if the sender if you

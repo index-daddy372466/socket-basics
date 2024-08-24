@@ -17,10 +17,7 @@ const express = require("express"),
   MemoryStore = require("memorystore")(session),
   { setMaxListeners } = require("events"),
   socketIoStart = require("./socketio.js");
-const { createProxyMiddleware }=require('http-proxy-middleware');
-    app.use('/api/docker',createProxyMiddleware({target:'http://localhost:6786/api/docker'}));
-    app.use('/api/home',createProxyMiddleware({target:'http://localhost:6786/api/home'}));
-    app.use('/api/numbers',createProxyMiddleware({target:'http://localhost:6786/api/numbers'}));
+const { createProxyMiddleware } = require("http-proxy-middleware");
 
 let messages = {},
   activeUsers = [],
@@ -62,6 +59,18 @@ const sessionMiddleware = session({
 });
 // middleware
 app.use(cors());
+app.use(
+  "/api/docker",
+  createProxyMiddleware({ target: "http://localhost:6786/api/docker" })
+);
+app.use(
+  "/api/home",
+  createProxyMiddleware({ target: "http://localhost:6786/api/home" })
+);
+app.use(
+  "/numbers",
+  createProxyMiddleware({ target: "http://localhost:6786/api/numbers" })
+);
 app.set("views", path.resolve(__dirname, "../client/public/views"));
 app.set("view engine", "ejs");
 initializePassport(passport, activeUsers);
@@ -85,9 +94,9 @@ app.use((req, res, next) => {
   ];
   // if user is true
   if (req.user) {
-    console.log(activeUsers)
+    console.log(activeUsers);
     if (irrelevant.includes(req.url) && activeUsers.length == 1) {
-      console.log('All sockets are disconnected')
+      console.log("All sockets are disconnected");
       console.log("server is closed");
       closeServer(server);
     } else {
@@ -105,7 +114,6 @@ app.use((req, res, next) => {
 // socket io
 socketIoStart(io);
 
-
 // read cursewords.json & route
 app.route("/words/curse").get((req, res) => {
   let string = JSON.parse(
@@ -122,8 +130,6 @@ app.route("/words/curse").get((req, res) => {
     res.json({ words: words });
   }
 });
-
-
 
 app.route("/").get((req, res) => {
   if (req.isAuthenticated()) {
@@ -154,8 +160,8 @@ app.get("/logout", checkAuthenticated, (req, res) => {
 
   for (let i = 0; i < activeUsers.length; i++) {
     if (activeUsers[i].id == user.id) {
-      console.log(activeUsers[i])
-      activeUsers.splice(activeUsers.indexOf(activeUsers[i]),1);
+      console.log(activeUsers[i]);
+      activeUsers.splice(activeUsers.indexOf(activeUsers[i]), 1);
     }
   }
   console.log("");
@@ -166,7 +172,22 @@ app.get("/logout", checkAuthenticated, (req, res) => {
   });
 });
 
-
+// exisiting rooms
+app.get("/rooms/existing", checkAuthenticated, (req, res) => {
+  let roomData = [...rooms];
+  if (rooms.length < 1) {
+    res.json({ room: "no data" });
+  } else {
+    res.json({ room: roomData });
+  }
+});
+app.post("/rooms/check", (req, res) => {
+  if (!rooms.includes(req.body.room)) {
+    res.status(403).json({ err: "unauthorized!" });
+  } else {
+    res.json({ data: true });
+  }
+});
 
 // clear rooms
 app.route("/room/clear").get(checkAuthenticated, (req, res) => {
@@ -195,22 +216,6 @@ app.post("/room/create", checkAuthenticated, (req, res) => {
     }
   } catch (err) {
     throw err;
-  }
-});
-// exisiting rooms
-app.get("/room/existing", checkAuthenticated, (req, res) => {
-  let roomData = [...rooms];
-  if (rooms.length < 1) {
-    res.json({ room: "no data" });
-  } else {
-    res.json({ room: roomData });
-  }
-});
-app.post("/room/check", (req, res) => {
-  if (!rooms.includes(req.body.room)) {
-    res.status(403).json({ err: "unauthorized!" });
-  } else {
-    res.json({ data: true });
   }
 });
 app.get("/room/:room", checkAuthenticated, (req, res) => {
@@ -244,15 +249,10 @@ app.get("/:room/sec/messages", (req, res) => {
   // res.redirect('/room/'+room)
 });
 
-
-
-
-
 // app listen
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
 });
-
 
 // 404
 app.use(function (req, res) {
