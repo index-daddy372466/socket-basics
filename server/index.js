@@ -1,34 +1,27 @@
 require("dotenv").config();
-let PORT = !process.env.PORT ? 4447 : process.env.PORT
+let PORT = !process.env.PORT ? 4447 : process.env.PORT;
 const express = require("express"),
   app = express(),
   // http = require("http"),
   httpServer = app.listen(PORT, () => {
-  console.log(`listening on port ${PORT}`);
-}),
- { Server } = require("socket.io")
-, io = new Server(httpServer );
-  // const server = http.createServer(app),
-  // { WebSocket } = require('ws'),
-  // ws = new WebSocket('ws://localhost:8081',{port:443})
-  // io = new Server(server, {
-  //   allowEIO3: true,
-  // }),
-  // io = require('socket.io')(server, { wsEngine: 'ws' });
-  PORT = !process.env.PORT ? 4447 : process.env.PORT,
-  AXI = !process.env._AXI_ ? 4448 : process.env._AXI_,
-  path = require("path"),
-  cors = require("cors"),
-  passport = require("passport"),
-  initializePassport = require("./passport-config.js"),
-  session = require("express-session"),
-  cookieParser = require("cookie-parser"),
-  fs = require("fs"),
-  MemoryStore = require("memorystore")(session),
-  { setMaxListeners } = require("events"),
-  socketIoStart = require("./socketio.js"),
-  docker = "http://localhost:6786",
-  { createProxyMiddleware } = require("http-proxy-middleware");
+    console.log(`listening on port ${PORT}`);
+  }),
+  { Server } = require("socket.io"),
+  io = new Server(httpServer);
+(PORT = !process.env.PORT ? 4447 : process.env.PORT),
+  (AXI = !process.env._AXI_ ? 4448 : process.env._AXI_),
+  (path = require("path")),
+  (cors = require("cors")),
+  (passport = require("passport")),
+  (initializePassport = require("./passport-config.js")),
+  (session = require("express-session")),
+  (cookieParser = require("cookie-parser")),
+  (fs = require("fs")),
+  (MemoryStore = require("memorystore")(session)),
+  ({ setMaxListeners } = require("events")),
+  (socketIoStart = require("./socketio.js")),
+  (docker = "http://localhost:6786"),
+  ({ createProxyMiddleware } = require("http-proxy-middleware"));
 
 let messages = {},
   activeUsers = [],
@@ -222,11 +215,6 @@ app.get("/:room/sec/messages", (req, res) => {
   }
   // res.redirect('/room/'+room)
 });
-
-// app listen
-// app.listen(PORT, () => {
-//   console.log(`listening on port ${PORT}`);
-// });
 
 // 404
 app.use(function (req, res) {
