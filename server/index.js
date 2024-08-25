@@ -4,7 +4,11 @@ const express = require("express"),
   http = require("http"),
   server = http.createServer(app),
   { Server } = require("socket.io"),
-  io = new Server(server),
+  // { WebSocket } = require('ws'),
+  // ws = new WebSocket('ws://localhost:8081',{port:443})
+  io = new Server(server,{
+  allowEIO3:true,
+  }),
   // io = require('socket.io')(server, { wsEngine: 'ws' }); 
   PORT = !process.env.PORT ? 4447 : process.env.PORT,
   AXI = !process.env._AXI_ ? 4448 : process.env._AXI_,
