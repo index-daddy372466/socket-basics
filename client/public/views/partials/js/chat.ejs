@@ -1,14 +1,10 @@
 <script>
   // fetch docker api
-  fetch("/numbers")
-    .then((r) => r.json())
-    .then((d) => console.log(d.numbers));
+  // fetch("/numbers")
+  //   .then((r) => r.json())
+  //   .then((d) => console.log(d.numbers));
 
-  window.onload = (e) => {
-    window.location.port = "4448";
-    // console.log(window.location);
-  };
-  let socket = io.connect(":4448");
+  let socket = io();
 
   // declare form & text-input
   let form = document.getElementById("form");

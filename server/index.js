@@ -16,16 +16,14 @@ const express = require("express"),
   fs = require("fs"),
   MemoryStore = require("memorystore")(session),
   { setMaxListeners } = require("events"),
-  socketIoStart = require("./socketio.js");
-const { createProxyMiddleware } = require("http-proxy-middleware");
+  socketIoStart = require("./socketio.js"),
+  docker = 'http://localhost:6786',
+  { createProxyMiddleware } = require("http-proxy-middleware");
 
 let messages = {},
   activeUsers = [],
   rooms = [];
 
-function closeServer(server) {
-  server.close();
-}
 
 const checkAuthenticated = (req, res, next) => {
   if (req.user) {
@@ -61,15 +59,15 @@ const sessionMiddleware = session({
 app.use(cors());
 app.use(
   "/api/docker",
-  createProxyMiddleware({ target: "http://localhost:6786/api/docker" })
+  createProxyMiddleware({ target: docker + "/api/docker" })
 );
 app.use(
   "/api/home",
-  createProxyMiddleware({ target: "http://localhost:6786/api/home" })
+  createProxyMiddleware({ target: docker + "/api/home" })
 );
 app.use(
   "/numbers",
-  createProxyMiddleware({ target: "http://localhost:6786/api/numbers" })
+  createProxyMiddleware({ target: docker + "/api/numbers" })
 );
 app.set("views", path.resolve(__dirname, "../client/public/views"));
 app.set("view engine", "ejs");
@@ -82,35 +80,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 io.engine.use(sessionMiddleware);
-app.use((req, res, next) => {
-  // whichever url does not involve sockets, throw it into the array and test
-  let irrelevant = [
-    "/login",
-    "/",
-    "/login-attempt",
-    "/room/sec/messages",
-    "/room/existing",
-    "/home",
-  ];
-  // if user is true
-  if (req.user) {
-    console.log(activeUsers);
-    if (irrelevant.includes(req.url) && activeUsers.length == 1) {
-      console.log("All sockets are disconnected");
-      console.log("server is closed");
-      closeServer(server);
-    } else {
-      if (!server.listening) {
-        server.listen(AXI, () => {
-          console.log("server listening on port " + AXI);
-        });
-      }
-    }
-  } else {
-    console.log("socket is not running");
-  }
-  next();
-});
+
 // socket io
 socketIoStart(io);
 
@@ -250,7 +220,10 @@ app.get("/:room/sec/messages", (req, res) => {
 });
 
 // app listen
-app.listen(PORT, () => {
+// app.listen(PORT, () => {
+//   console.log(`listening on port ${PORT}`);
+// });
+server.listen(PORT, () => {
   console.log(`listening on port ${PORT}`);
 });
 
