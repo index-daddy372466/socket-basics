@@ -27,7 +27,22 @@
   .type-up {
     position: absolute;
   }
-
+  .user-hide{
+    opacity:0;
+    transition:.5s;
+  }
+  .user-appear-{
+    opacity:0;
+    animation:typingUser 1s .5 infinite alternate forwards;
+  }
+  @keyframes typingUser {
+    from{
+      opacity:.5;
+    }
+    to{
+      opacity:.88;
+    }
+  }
   .type-appear{
     opacity:0;
     animation:typing 1s infinite alternate forwards;
@@ -41,7 +56,13 @@
     }
   }
 
-
+  #typing-users{
+    position:fixed;
+  }
+  #typing-users>p{
+  font-size:14px;
+  transition: .25s;
+  }
   .type-hidden {
     opacity: 0;
   }

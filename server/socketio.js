@@ -9,11 +9,17 @@ const socketIoStart = (io) => {
       socket.join(room);
 
       // typing passes true/false
-      socket.on(typing, (bool, currentroom) => {
+    
+      socket.on(typing, ( currentroom) => {
         let user = socket.request.session.passport.user;
-        socket.to(currentroom).emit(typing, bool, user["name"]);
+        socket.to(currentroom).emit(typing,user["name"]);
       }); 
     });
+    // detect keybaord
+    socket.on('keyboard', (bool, currentroom) => {
+      let user = socket.request.session.passport.user;
+      socket.to(currentroom).emit('keyboard', bool, user["name"]);
+    }); 
 
     // detect if user is logged in or not
     // if (socket.request.session.passport) {

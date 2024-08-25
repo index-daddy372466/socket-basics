@@ -6,7 +6,7 @@
 
   window.onload = (e) => {
     window.location.port = "4448";
-    console.log(window.location);
+    // console.log(window.location);
   };
   let socket = io.connect(":4448");
 
@@ -19,6 +19,11 @@
   let keyboard = document.querySelector("svg#type-keyboard");
   let typing = false;
   let timeout = undefined;
+  let typingarr = document.getElementById("typing-users");
+
+  // fix typing array (typing indicator)
+  console.log(typingarr);
+  typingarr.style.bottom = text.clientHeight + 20 + "px";
 
   // ejs rendered variable
   const roomname = "<%= room %>";
@@ -68,31 +73,58 @@
   text.onkeypress = (e) => {
     if (e.which != 13) {
       typing = true;
-      socket.emit("typing", typing, roomname);
+      socket.emit("typing", roomname);
+      socket.emit("keyboard", typing, roomname);
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         typing = false;
-        socket.emit("typing", typing, roomname);
-      }, 1750);
-    } else {
-      clearTimeout(timeout);
+        socket.emit("typing", roomname);
+        socket.emit("keyboard", typing, roomname);
+      }, 2000);
     }
-    socket.on("typing", (bool, name) => {
+    let names = [];
+    socket.on("typing", (name) => {
+      if (names.indexOf(name) == -1) {
+        names.push(name);
+        console.log(names);
+      }
+      // set paragraph textcontent to the updated names array
+      typingarr.children[0].textContent =
+        names.length > 0 && names.length < 2
+          ? [...names].join("") + " is typing..."
+          : [...names].join(", ") + " are typing...";
+    });
+    // keyboard display
+    socket.on("keyboard", (bool, name) => {
+      let index = [...names].indexOf(name);
       if (bool == true) {
-        console.log(keyboard);
+        typingarr.children[0].classList.remove("user-hide");
+        typingarr.children[0].classList.add("user-appear");
         keyboard.classList.remove("type-hidden");
         keyboard.classList.add("type-appear");
       } else {
+        if (names.indexOf(name)!=-1) {
+          names.splice(index, 1);
+        }
+        typingarr.children[0].classList.remove("user-appear");
         keyboard.classList.remove("type-appear");
         keyboard.classList.add("type-hidden");
+
+        // set paragraph textcontent to the updated names array
+        typingarr.children[0].textContent =
+          names.length < 1
+            ? typingarr.children[0].classList.add('user-hide')
+            : names.length > 0 && names.length < 2
+            ? [...names].join("") + " is typing..."
+            : [...names].join(", ") + " are typing...";
       }
     });
   };
   let sameSender = false; // verify if the sender if you
   // submit onclick
   submit.onclick = (e) => {
-    console.log("scrollHeight");
-    console.log(chatbox.scrollHeight + 100);
+    // console.log("scrollHeight");
+    // console.log(chatbox.scrollHeight + 100);
     chatbox.scrollTop = chatbox.scrollHeight - chatbox.clientHeight;
     setTimeout(() => chatbox.scrollTo(0, chatbox.clientHeight), 250);
     sameSender = true;
