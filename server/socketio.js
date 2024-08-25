@@ -35,11 +35,11 @@ const socketIoStart = (io) => {
     });
 
     // emit user's name to room
-    socket.emit("get_name", socket.request.session.passport.user.name);
+    socket.emit("get_name", socket.request.session ? socket.request.session.passport.user : '');
 
     // server recieves public message from any socket
     socket.on(public, (msg, currentroom) => {
-      let user = socket.request.session.passport.user;
+      let user = socket.request.session ? socket.request.session.passport.user : '';
 
       // server sends message back to client
       // socket.broadcast.emit('send-to-room', msg, user.name);
