@@ -17,13 +17,12 @@ const express = require("express"),
   MemoryStore = require("memorystore")(session),
   { setMaxListeners } = require("events"),
   socketIoStart = require("./socketio.js"),
-  docker = 'http://localhost:6786',
+  docker = "http://localhost:6786",
   { createProxyMiddleware } = require("http-proxy-middleware");
 
 let messages = {},
   activeUsers = [],
   rooms = [];
-
 
 const checkAuthenticated = (req, res, next) => {
   if (req.user) {
@@ -61,14 +60,8 @@ app.use(
   "/api/docker",
   createProxyMiddleware({ target: docker + "/api/docker" })
 );
-app.use(
-  "/api/home",
-  createProxyMiddleware({ target: docker + "/api/home" })
-);
-app.use(
-  "/numbers",
-  createProxyMiddleware({ target: docker + "/api/numbers" })
-);
+app.use("/api/home", createProxyMiddleware({ target: docker + "/api/home" }));
+app.use("/numbers", createProxyMiddleware({ target: docker + "/api/numbers" }));
 app.set("views", path.resolve(__dirname, "../client/public/views"));
 app.set("view engine", "ejs");
 initializePassport(passport, activeUsers);
@@ -80,6 +73,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 io.engine.use(sessionMiddleware);
+let userbool = false;
 
 // socket io
 socketIoStart(io);

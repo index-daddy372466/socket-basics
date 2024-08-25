@@ -11,13 +11,13 @@ const socketIoStart = (io) => {
       // typing passes true/false
     
       socket.on(typing, ( currentroom) => {
-        let user = socket.request.session.passport.user;
+        let user = socket.request.session ? socket.request.session.passport.user : '';
         socket.to(currentroom).emit(typing,user["name"]);
       }); 
     });
     // detect keybaord
     socket.on('keyboard', (bool, currentroom) => {
-      let user = socket.request.session.passport.user;
+      let user = socket.request.session  ? socket.request.session.passport.user : '';
       socket.to(currentroom).emit('keyboard', bool, user["name"]);
     }); 
 
