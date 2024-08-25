@@ -1,18 +1,8 @@
 <script>
-  let intake = document.getElementById("intake");
-  let tiles = document.querySelectorAll(".tile");
-  let cursewords;
-  let sx = 0,
-    sy = 0,
-    nx = 0,
-    ny = 0;
-  console.log(tiles);
-
   // set tile positions
   window.onload = async (e) => {
     tiles = [...tiles].map((t, index) => {
       t.style.width = `${document.body.clientWidth / tiles.length}px`;
-      t.style.height = `50%`;
       t.style.left = `${(document.body.clientWidth / tiles.length) * index}px`;
     });
 
@@ -26,16 +16,24 @@
     }
   };
 
+  let intake = document.getElementById("intake");
+  let tiles = document.querySelectorAll(".tile");
+  let cursewords;
+  let sx = 0,
+    sy = 0,
+    nx = 0,
+    ny = 0;
   // iterate through tiles
   tiles.forEach((tile, idx) => {
     tile.onmousedown = mouseDown;
+    
 
     //1) Mousedown
     function mouseDown(e) {
       // starting position becomes current tile position
       sx = e.clientX;
       sy = e.clientY;
-
+    
       // listen for mousemove & mouseup events when mouse is down
       document.addEventListener("mousemove", mouseMove);
       document.onmouseup = mouseUp;
@@ -107,13 +105,13 @@
       .then((r) => r.json())
       .then((d) => d.words);
     // get full length of arrays
-    let len = curses.length
+    let len = curses.length;
 
-      let bool = [...curses].filter((word, idx) => {
-        let reg = new RegExp(`${word}`, "ig");
-        return combine.includes(val) || reg.test(val);
-      });
-      return bool.length > 0;
+    let bool = [...curses].filter((word, idx) => {
+      let reg = new RegExp(`${word}`, "ig");
+      return combine.includes(val) || reg.test(val);
+    });
+    return bool.length > 0;
   }
 
   // function to append li's to ul
