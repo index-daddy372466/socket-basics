@@ -1,15 +1,20 @@
 require("dotenv").config();
+let PORT = !process.env.PORT ? 4447 : process.env.PORT
 const express = require("express"),
   app = express(),
-  http = require("http"),
-  server = http.createServer(app),
-  { Server } = require("socket.io"),
+  // http = require("http"),
+  httpServer = app.listen(PORT, () => {
+  console.log(`listening on port ${PORT}`);
+}),
+ { Server } = require("socket.io")
+, io = new Server(httpServer );
+  // const server = http.createServer(app),
   // { WebSocket } = require('ws'),
   // ws = new WebSocket('ws://localhost:8081',{port:443})
-  io = new Server(server,{
-  allowEIO3:true,
-  }),
-  // io = require('socket.io')(server, { wsEngine: 'ws' }); 
+  // io = new Server(server, {
+  //   allowEIO3: true,
+  // }),
+  // io = require('socket.io')(server, { wsEngine: 'ws' });
   PORT = !process.env.PORT ? 4447 : process.env.PORT,
   AXI = !process.env._AXI_ ? 4448 : process.env._AXI_,
   path = require("path"),
@@ -222,9 +227,6 @@ app.get("/:room/sec/messages", (req, res) => {
 // app.listen(PORT, () => {
 //   console.log(`listening on port ${PORT}`);
 // });
-server.listen(PORT, () => {
-  console.log(`listening on port ${PORT}`);
-});
 
 // 404
 app.use(function (req, res) {
