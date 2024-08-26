@@ -35,17 +35,19 @@
   window.onload = async (e) => {
     // focus text
     text.focus();
-    // send scrollbar to the last chat message + a margin 
-    setTimeout(() => chatbox.scrollTo(0,chatbox.scrollHeight - chatbox.clientHeight), 250);
+    // send scrollbar to the last chat message + a margin
+    setTimeout(
+      () => chatbox.scrollTo(0, chatbox.scrollHeight - chatbox.clientHeight),
+      250
+    );
 
     let mainheader = header.parentElement;
     mainheader.classList.toggle("appear-header");
 
-
     // retrieve user's name from socket
     socket.on("get_name", async (user) => {
-      console.log('get_name: ')
-      console.log(user)
+      console.log("get_name: ");
+      console.log(user);
       // fetch for existing chats & append to chatbox
       // get existing messages
       let chats = await fetch(`/${roomname}/sec/messages`)
@@ -53,9 +55,9 @@
         .then((d) => {
           if (d.messages !== "no messages") {
             let messages = [...d.messages];
-            console.log(messages)
+            console.log(messages);
             messages.map((msg, index) => {
-              sameSender = (msg["sender"] === user.name);
+              sameSender = msg["sender"] === user.name;
               let li = document.createElement("li");
               li.classList.add("list-item");
               !sameSender
@@ -70,7 +72,6 @@
         });
     });
   };
-  let control = undefined;
 
   // user is typing to the server
   text.onkeypress = (e) => {
@@ -83,7 +84,7 @@
         typing = false;
         socket.emit("typing", roomname);
         socket.emit("keyboard", typing, roomname);
-      }, 2000);
+      }, 2750);
     }
     let names = [];
     socket.on("typing", (name) => {
@@ -95,7 +96,9 @@
       typingarr.children[0].textContent =
         names.length > 0 && names.length < 2
           ? [...names].join("") + " is typing..."
-          : [...names].join(", ") + " are typing...";
+          : names.length > 1 && names.length < 3
+          ? [...names].join(" and ") + " are typing..."
+          : [...names].map((n,i)=>i==names.length-1 ? 'and ' + n : n).join(", ") + " are typing...";
     });
     // keyboard display
     socket.on("keyboard", (bool, name) => {
@@ -106,7 +109,7 @@
         keyboard.classList.remove("type-hidden");
         keyboard.classList.add("type-appear");
       } else {
-        if (names.indexOf(name)!=-1) {
+        if (names.indexOf(name) != -1) {
           names.splice(index, 1);
         }
         typingarr.children[0].classList.remove("user-appear");
@@ -116,7 +119,7 @@
         // set paragraph textcontent to the updated names array
         typingarr.children[0].textContent =
           names.length < 1
-            ? typingarr.children[0].classList.add('user-hide')
+            ? typingarr.children[0].classList.add("user-hide")
             : names.length > 0 && names.length < 2
             ? [...names].join("") + " is typing..."
             : [...names].join(", ") + " are typing...";
@@ -126,7 +129,7 @@
   let sameSender = false; // verify if the sender if you
   // submit onclick
   submit.onclick = (e) => {
-      setTimeout(() => chatbox.scrollTo(0, 1000), 250);
+    setTimeout(() => chatbox.scrollTo(0, 1000), 250);
     sameSender = true;
     e.preventDefault();
     if (text.value) {
@@ -150,8 +153,10 @@
       ? msg + ` [${name}]`
       : `[${name}] ` + msg;
     chatbox.appendChild(li);
-  
-    setTimeout(() => chatbox.scrollTo(0,chatbox.scrollHeight - chatbox.clientHeight), 250);
 
+    setTimeout(
+      () => chatbox.scrollTo(0, chatbox.scrollHeight - chatbox.clientHeight),
+      250
+    );
   });
 </script>
