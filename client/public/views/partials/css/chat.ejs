@@ -27,41 +27,41 @@
   .type-up {
     position: absolute;
   }
-  .user-hide{
-    opacity:0;
-    transition:.5s;
+  .user-hide {
+    opacity: 0;
+    transition: 0.5s;
   }
-  .user-appear-{
-    opacity:0;
-    animation:typingUser 1s .5 infinite alternate forwards;
+  .user-appear- {
+    opacity: 0;
+    animation: typingUser 1s 0.5 infinite alternate forwards;
   }
   @keyframes typingUser {
-    from{
-      opacity:.5;
+    from {
+      opacity: 0.5;
     }
-    to{
-      opacity:.88;
+    to {
+      opacity: 0.88;
     }
   }
-  .type-appear{
-    opacity:0;
-    animation:typing 1s infinite alternate forwards;
+  .type-appear {
+    opacity: 0;
+    animation: typing 1s infinite alternate forwards;
   }
   @keyframes typing {
-    from{
-      opacity:0;
+    from {
+      opacity: 0;
     }
-    to{
-      opacity:.88;
+    to {
+      opacity: 0.88;
     }
   }
 
-  #typing-users{
-    position:fixed;
+  #typing-users {
+    position: fixed;
   }
-  #typing-users>p{
-  font-size:14px;
-  transition: .25s;
+  #typing-users > p {
+    font-size: 14px;
+    transition: 0.25s;
   }
   .type-hidden {
     opacity: 0;
@@ -101,38 +101,40 @@
     gap: 1rem;
     align-items: center;
     overflow-y: scroll;
-    margin-bottom:3rem;
-    padding-bottom:3rem;
-    padding-top:.5rem;
+    margin-bottom: 3rem;
+    padding-bottom: 3rem;
+    padding-top: 0.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 
   .list-item {
-    width:100%;
-    border:none;
+    width: 100%;
+    border: none;
     list-style: none;
     opacity: 0;
     transition: 0.5s;
     animation: appear 0.5s forwards;
-    transform:translate(0,50px);
+    transform: translate(0, 50px);
   }
-  .list-item>p{
-    box-shadow: 0 2px 3px .5px rgba(64, 66, 66, 0.719);
-    padding:1rem;
+  .list-item > p {
+    box-shadow: 0 2px 3px 0.5px rgba(64, 66, 66, 0.719);
+    padding: 1rem;
     font-size: 20px;
-    height:100%;
-    max-width:55%;
-    min-width:none;
-    border-radius:20px;
-    border:none;
+    height: 100%;
+    max-width: 55%;
+    min-width: none;
+    border-radius: 20px;
+    border: none;
   }
-  
+
   @keyframes appear {
     from {
-      transform:translate(0,50px);
+      transform: translate(0, 50px);
       opacity: 0;
     }
     to {
-      transform:translate(0,0px);
+      transform: translate(0, 0px);
       opacity: 1;
     }
   }
@@ -145,14 +147,13 @@
     padding-left: 1rem;
     text-align: start;
   }
-  .p-left{
-    float:left;
+  .p-left {
+    float: left;
     color: #fff;
     background: darkblue;
-
   }
-  .p-right{
-    float:right;
+  .p-right {
+    float: right;
     color: #000;
     background: lightblue;
   }
@@ -179,6 +180,7 @@
     background: #000;
     cursor: pointer;
   }
+
   #home-btn > a:hover {
     transition: 0.25s;
     background: #fff;
@@ -201,18 +203,23 @@
     cursor: pointer;
   }
 
-  @media screen and (max-width:450px) {
+  @media screen and (max-width: 450px) {
     #home-btn > a {
-    padding: 0.25rem .5rem;
-    transition:none;
-  
-  }
-  body{
-      overflow:scroll;
-      scroll-behavior: smooth;
-      overflow-y:scroll;
-      height:90vh;
+      padding: 0.25rem 0.5rem;
+      transition: none;
     }
-    
+    body {
+      overflow: scroll;
+      scroll-behavior: smooth;
+      overflow-y: scroll;
+      height: 90vh;
+    }
+    #room-header {
+      font-size: 24px;
+    }
+    ul#chats {
+      padding-left: 0;
+      padding-right: 0;
+    }
   }
 </style>
