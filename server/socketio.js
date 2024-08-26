@@ -39,8 +39,7 @@ const socketIoStart = (io) => {
 
     // emit user's name to room
     socket.emit(
-      "get_name",
-      socket.request.session ? socket.request.session.passport.user : ""
+      "get_name", socket.request.session.passport.user
     );
 
     // server recieves public message from any socket

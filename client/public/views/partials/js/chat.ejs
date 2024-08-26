@@ -43,17 +43,19 @@
 
 
     // retrieve user's name from socket
-    socket.on("get_name", async (name) => {
+    socket.on("get_name", async (user) => {
+      console.log('get_name: ')
+      console.log(user)
       // fetch for existing chats & append to chatbox
       // get existing messages
       let chats = await fetch(`/${roomname}/sec/messages`)
         .then((r) => r.json())
         .then((d) => {
-          console.log(d);
           if (d.messages !== "no messages") {
             let messages = [...d.messages];
+            console.log(messages)
             messages.map((msg, index) => {
-              sameSender = msg["sender"] === name;
+              sameSender = (msg["sender"] === user.name);
               let li = document.createElement("li");
               li.classList.add("list-item");
               !sameSender
