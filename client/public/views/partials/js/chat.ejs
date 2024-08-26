@@ -59,11 +59,14 @@
             messages.map((msg, index) => {
               sameSender = msg["sender"] === user.name;
               let li = document.createElement("li");
+              let p = document.createElement("p");
               li.classList.add("list-item");
+              li.appendChild(p)
+              !sameSender ? p.classList.add("p-left") : p.classList.add("p-right");
               !sameSender
                 ? li.classList.add("left")
                 : li.classList.add("right");
-              li.textContent = li.classList.contains("right")
+              p.textContent = li.classList.contains("right")
                 ? msg.message + ` [${msg.sender}]`
                 : `[${msg.sender}] ` + msg.message;
               chatbox.appendChild(li);
@@ -145,11 +148,14 @@
   // append li to chatbox
   socket.on("send_it", (msg, name) => {
     let li = document.createElement("li");
+    let p = document.createElement("p");
     li.classList.add("list-item");
+    li.appendChild(p)
+    !sameSender ? p.classList.add("p-left") : p.classList.add("p-right");
     // once the li is created, text-align start/end based off of receiver/sender respectively
     !sameSender ? li.classList.add("left") : li.classList.add("right");
     sameSender = false;
-    li.textContent = li.classList.contains("right")
+    p.textContent = li.classList.contains("right")
       ? msg + ` [${name}]`
       : `[${name}] ` + msg;
     chatbox.appendChild(li);

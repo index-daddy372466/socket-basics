@@ -97,28 +97,42 @@
     background: #fff;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: start;
-    gap: .5rem;
+    gap: 1rem;
+    align-items: center;
     overflow-y: scroll;
     margin-bottom:3rem;
     padding-bottom:3rem;
+    padding-top:.5rem;
   }
+
   .list-item {
-    width: 100%;
-    border: 3px solid #000;
-    font-size: 18px;
+    width:100%;
+    border:none;
     list-style: none;
-    padding: 0 1rem;
     opacity: 0;
     transition: 0.5s;
     animation: appear 0.5s forwards;
+    transform:translate(0,50px);
   }
+  .list-item>p{
+    box-shadow: 0 2px 3px .5px rgba(64, 66, 66, 0.719);
+    padding:1rem;
+    font-size: 20px;
+    height:100%;
+    max-width:55%;
+    min-width:none;
+    border-radius:20px;
+    border:none;
+  }
+  
   @keyframes appear {
     from {
+      transform:translate(0,50px);
       opacity: 0;
     }
     to {
+      transform:translate(0,0px);
       opacity: 1;
     }
   }
@@ -126,14 +140,21 @@
   .right {
     padding-right: 1rem;
     text-align: end;
-    color: #000;
-    background: lightblue;
   }
   .left {
     padding-left: 1rem;
     text-align: start;
+  }
+  .p-left{
+    float:left;
     color: #fff;
     background: darkblue;
+
+  }
+  .p-right{
+    float:right;
+    color: #000;
+    background: lightblue;
   }
   form#form {
     width: 100%;
