@@ -1,9 +1,16 @@
 const public = "public_message";
 const sending = "send_it";
 const typing = "typing";
+const createRoom = 'create_room'
 const socketIoStart = (io) => {
   // Initiate socket connection
   io.on("connection", (socket) => {
+    // create a room
+    socket.on(createRoom, room => {
+      console.log('new room created: ' + room)
+      // socket broadcasts new room into client side. (everyone can see, including the sender)
+      socket.emit(createRoom,room)
+    })
     // socket joins a room
     socket.on("join_room", (room) => {
       socket.join(room);

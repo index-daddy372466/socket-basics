@@ -1,6 +1,9 @@
 <script>
+  const textinput = document.getElementById('text-input')
+  const socket = io()
   // set tile positions
   window.onload = async (e) => {
+    textinput.focus();
     tiles = [...tiles].map((t, index) => {
       t.style.width = `${document.body.clientWidth / tiles.length}px`;
       t.style.left = `${(document.body.clientWidth / tiles.length) * index}px`;
@@ -63,6 +66,7 @@
   });
 
   let room_intake = tiles[1];
+  let sameCreator =  false;
   // submit function
   let submit = document.querySelector("button[type=submit]");
   submit.onclick = async (e) => {
@@ -91,6 +95,9 @@
       .then((data) => {
         let rooms = data.room; // array of rooms
         let target = rooms[rooms.length - 1];
+        // user/socket creates a room and sends request to the server
+        socket.emit('create_room',target);
+        // server broadcasts sender's request to everyone in home page
         inTake(target);
       });
     e.target.parentElement.children[0].value = "";

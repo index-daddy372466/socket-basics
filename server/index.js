@@ -112,7 +112,7 @@ app.route("/home").get(checkAuthenticated, (req, res) => {
 
 // login page
 app.route("/login").get(checkNotAuthenticated, (req, res) => {
-  res.sendFile(path.resolve(__dirname, "../client/public/index.html"));
+  res.render('index.ejs')
 });
 // login attempt
 app.route("/login-attempt").post(

@@ -10,6 +10,7 @@
 
   <body>
     <div id="container">
+      <%- include('./partials/html/navigation.ejs')%>
       <div id="tile1" class="tile"></div>
       <div id="tile2" class="tile">
         <h1 class="existing-room" style="text-align: center;marign-top:1rem;background:#000;color:#fff;text-decoration: underline">Rooms</h1>
@@ -25,6 +26,7 @@
         </form>
       </div>
     </div>
+    <script src="/socket.io/socket.io.js"></script>
     <%- include('./partials/js/home.ejs')%>
   </body>
 </html>
