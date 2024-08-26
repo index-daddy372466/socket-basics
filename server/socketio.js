@@ -9,24 +9,20 @@ const socketIoStart = (io) => {
       socket.join(room);
 
       // typing passes true/false
-    
-      socket.on(typing, ( currentroom) => {
-        let user = socket.request.session ? socket.request.session.passport.user : '';
-        socket.to(currentroom).emit(typing,user["name"]);
-      }); 
+      socket.on(typing, (currentroom) => {
+        let user = socket.request.session
+          ? socket.request.session.passport.user
+          : "";
+        socket.to(currentroom).emit(typing, user["name"]);
+      });
     });
     // detect keybaord
-    socket.on('keyboard', (bool, currentroom) => {
-      let user = socket.request.session  ? socket.request.session.passport.user : '';
-      socket.to(currentroom).emit('keyboard', bool, user["name"]);
-    }); 
-
-    // detect if user is logged in or not
-    // if (socket.request.session.passport) {
-    //   console.log("session active");
-    // } else {
-    //   console.log("session not active");
-    // }
+    socket.on("keyboard", (bool, currentroom) => {
+      let user = socket.request.session
+        ? socket.request.session.passport.user
+        : "";
+      socket.to(currentroom).emit("keyboard", bool, user["name"]);
+    });
 
     // welcome message to any rooms (once)
     socket.on("welcome", (room) => {
@@ -35,18 +31,16 @@ const socketIoStart = (io) => {
     });
 
     // emit user's name to room
-    socket.emit("get_name", socket.request.session ? socket.request.session.passport.user : '');
+    socket.emit(
+      "get_name",
+      socket.request.session ? socket.request.session.passport.user : ""
+    );
 
     // server recieves public message from any socket
     socket.on(public, (msg, currentroom) => {
-      let user = socket.request.session ? socket.request.session.passport.user : '';
-
-      // server sends message back to client
-      // socket.broadcast.emit('send-to-room', msg, user.name);
-
-      // send to the current room, but cannot see your own message
-      // socket.to(currentroom).emit('send_it', msg, user['name']);
-      // similar to socket.broadcast.emit(event)
+      let user = socket.request.session
+        ? socket.request.session.passport.user
+        : "";
       io.to(currentroom).emit(sending, msg, user["name"]);
     });
 

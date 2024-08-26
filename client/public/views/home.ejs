@@ -12,12 +12,12 @@
     <div id="container">
       <div id="tile1" class="tile"></div>
       <div id="tile2" class="tile">
-        <h1 style="text-align: center;marign-top:1rem;background:#000;color:#fff;text-decoration: underline">Rooms</h1>
+        <h1 class="existing-room" style="text-align: center;marign-top:1rem;background:#000;color:#fff;text-decoration: underline">Rooms</h1>
         <ul id="intake"></ul>
       </div>
       <div id="tile3" class="tile">
         <div class="parent">
-          <h1 style="text-align: center;">Create a Room</h1>
+          <h1 class="create-room room-create" style="text-align: center;">Create a Room</h1>
         </div>
         <form action="/create/room" method="POST" id="form">
           <input type="text" name="room" id="text-input" minlength="3" />
