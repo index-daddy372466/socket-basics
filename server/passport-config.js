@@ -1,67 +1,43 @@
 const LocalStrategy = require("passport-local").Strategy;
-const Users = [
-  {
-    id: 1,
-    name: "kyle",
-    password: "kyle123",
-  },
-  {
-    id: 2,
-    name: "sam",
-    password: "sam555",
-  },
-  {
-    id: 3,
-    name: "brock",
-    password: "brock321",
-  },
-  {
-    id: 4,
-    name: "josh",
-    password: "josh0",
-  },
-  {
-    id: 5,
-    name: "cameron",
-    password: "cam25",
+const crypto = require("crypto");
+const randomGen = () => {
+  let randoms = [];
+  let salt = 11;
+  let chars = [...new Array(127).fill("")]
+    .map((x, i) => String.fromCharCode(i + 127))
+    .filter((j, idx) => idx > 32);
+  let gen = () => chars[Math.floor(Math.random() * chars.length)];
+  while (salt > 0) {
+    randoms.push(gen());
+    salt--;
   }
-];
+    return randoms.join``;
+};
 
-// get user by email
-const getUserByName = (name) => {
-  return Users.find((user) => user.name === name); // returns user object
-};
-// get user by id
-const getUserById = (id) => {
-  return Users.find((user) => user.id === id); // returns user object
-};
-function initialize(passport,activeUsers){
+function initialize(passport, activeUsers) {
+  // get user by id
+  const getUserById = (id) => {
+    return activeUsers.find((user) => user.id === id); // returns user object
+  };
   passport.use(
     new LocalStrategy(
       {
         usernameField: "username",
         session: true,
       },
-      (username, password, done) => {
-    
+      async (username, password, done) => {
         // authentication method
         try {
-        const user = getUserByName(username);
-          if (!user) {
+          if (!username) {
             done(null, false, { message: "user not found" });
+          } else {
+            let hash = randomGen()
+            const payload = { id: hash, name: username };
+            console.log(payload);
+            activeUsers.push(payload);
+            console.log("login success");
+            done(null, payload);
           }
-          else if (user.password !== password) {
-            console.log('wrong password')
-            done(null, false, { message: "wrong password" });
-          }
-        else{
-
-          const payload = { id: user.id, name: user.name };
-          activeUsers.push(payload)
-          console.log('login success')
-          done(null, payload);
-        }
-         
         } catch (err) {
           throw new Error(err);
         }
@@ -78,6 +54,5 @@ function initialize(passport,activeUsers){
     let userObj = id;
     done(null, userObj);
   });
-};
-module.exports = initialize
-
+}
+module.exports = initialize;
