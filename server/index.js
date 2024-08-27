@@ -12,21 +12,16 @@ const express = require("express"),
   (AXI = !process.env._AXI_ ? 4448 : process.env._AXI_),
   (path = require("path")),
   (cors = require("cors")),
-  (passport = require("passport")),
-  (initializePassport = require("./passport-config.js")),
-  (session = require("express-session")),
   (cookieParser = require("cookie-parser")),
   (fs = require("fs")),
-  (MemoryStore = require("memorystore")(session)),
   ({ setMaxListeners } = require("events")),
   (socketIoStart = require("./socketio.js")),
-  (docker = "http://localhost:6786"),
-  ({ createProxyMiddleware } = require("http-proxy-middleware"));
+  ({ proxyAuthentication } = require("./proxyAthentication.js")),
+  (passport = require("passport")),
+  docker = "http://localhost:9998";
+  const { createProxyMiddleware } = require("http-proxy-middleware")
 
-let messages = {},
-  activeUsers = [],
-  rooms = [];
-
+// auth
 const checkAuthenticated = (req, res, next) => {
   if (req.user) {
     next();
@@ -41,45 +36,25 @@ const checkNotAuthenticated = (req, res, next) => {
     res.redirect("/home");
   }
 };
-
-const sessionMiddleware = session({
-  name: "uniqueCookieName",
-  cookie: {
-    maxAge: 21600000,
-    secure: false,
-    sameSite: "strict",
-    httpOnly: true,
-  },
-  store: new MemoryStore({
-    checkPeriod: 21600000,
-  }),
-  secret: process.env.SECRET,
-  resave: false,
-  saveUninitialized: false,
-});
-// middleware
-app.use(cors());
-app.use(
-  "/api/docker",
-  createProxyMiddleware({ target: docker + "/api/docker" })
-);
-app.use("/api/home", createProxyMiddleware({ target: docker + "/api/home" }));
-app.use("/numbers", createProxyMiddleware({ target: docker + "/api/numbers" }));
+// set view engine
 app.set("views", path.resolve(__dirname, "../client/public/views"));
 app.set("view engine", "ejs");
-initializePassport(passport, activeUsers);
+
+// middleware
+app.use(cors({origin:"*"}));
 app.use(express.json());
 app.use(cookieParser());
 setMaxListeners(20);
-app.use(sessionMiddleware);
 app.use(express.urlencoded({ extended: true }));
-app.use(passport.initialize());
-app.use(passport.session());
-io.engine.use(sessionMiddleware);
-let userbool = false;
+app.use("/login-attempt", createProxyMiddleware({ target: docker + "/login-attempt" }));
 
-// socket io
-socketIoStart(io);
+// proxy auth server
+// proxyAuthentication(app);
+
+// // socket io engine
+// io.engine.use(sessionMiddleware);
+// // socket io
+// socketIoStart(io);
 
 // read cursewords.json & route
 app.route("/words/curse").get((req, res) => {
@@ -98,13 +73,17 @@ app.route("/words/curse").get((req, res) => {
   }
 });
 
+// conditional route
 app.route("/").get((req, res) => {
-  if (req.isAuthenticated()) {
+  // if (req.isAuthenticated()) {
+  //   res.redirect("/home");
+  // } else {
+  //   res.redirect("/login");
+  // }
     res.redirect("/home");
-  } else {
-    res.redirect("/login");
-  }
+  
 });
+
 // home page GET
 app.route("/home").get(checkAuthenticated, (req, res) => {
   res.render("home.ejs");
@@ -112,15 +91,9 @@ app.route("/home").get(checkAuthenticated, (req, res) => {
 
 // login page
 app.route("/login").get(checkNotAuthenticated, (req, res) => {
-  res.render('index.ejs')
+  res.render("index.ejs");
 });
-// login attempt
-app.route("/login-attempt").post(
-  passport.authenticate("local", {
-    successRedirect: "/home",
-    failureRedirect: "/",
-  })
-);
+
 // logout GET
 app.get("/logout", checkAuthenticated, (req, res) => {
   let user = req.user;
@@ -194,8 +167,9 @@ app.get("/room/:room", checkAuthenticated, (req, res) => {
     });
   }
 });
+
 // store messages in fake db
-app.get("/room/:room/:message", (req, res) => {
+app.get("/room/:room/:message", checkAuthenticated, (req, res) => {
   const { room, message } = req.params;
   // push message into array;
   // messages = [...messages,message]
@@ -206,7 +180,7 @@ app.get("/room/:room/:message", (req, res) => {
   // res.redirect('/room/'+room)
 });
 // get messages in fake db
-app.get("/:room/sec/messages", (req, res) => {
+app.get("/:room/sec/messages", checkAuthenticated, (req, res) => {
   const { room } = req.params;
   if (messages[room].length > 0) {
     res.json({ messages: messages[room] });

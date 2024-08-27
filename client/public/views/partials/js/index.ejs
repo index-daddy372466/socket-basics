@@ -1,6 +1,24 @@
 <script>
-    const username = document.querySelector("input[type=text]");
+    const username = querySelector('form>input[name=username]')
+    const password = querySelector('form>input[name=password]')
     window.onload = (e) => {
       username.focus();
     };
+
+
+    // const postFetch = async (url,data) => {
+    //   return await fetch(url,{
+    //     method:'POST',
+    //     headers:{
+    //       'Content-Type':'Application/json',
+    //     },
+    //     body:JSON.stringify(data)
+    //   })
+    // }
+
+    // document.querySelector('input[type=submit]').onclick = e => {
+    //   e.preventDefault();
+    //   postFetch('/login-attempt',{username,password})
+    //   console.log('fetching post login')
+    // }
   </script>

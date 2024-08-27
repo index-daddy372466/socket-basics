@@ -6,6 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server/index.js"
   },
+  "proxy":"http://localhost:9998",
   "keywords": [],
   "author": "",
   "license": "ISC",
