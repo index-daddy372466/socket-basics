@@ -1,17 +1,5 @@
 const LocalStrategy = require("passport-local").Strategy;
-const randomGen = () => {
-  let randoms = [];
-  let salt = 11;
-  let chars = [...new Array(127).fill("")]
-    .map((x, i) => String.fromCharCode(i + 127))
-    .filter((j, idx) => idx > 32);
-  let gen = () => chars[Math.floor(Math.random() * chars.length)];
-  while (salt > 0) {
-    randoms.push(gen());
-    salt--;
-  }
-  return randoms.join``;
-};
+const randomGen = require('./lib/randomGen.js')
 function initialize(passport, activeUsers) {
   // get user by id
   const getUserById = (id) => {
@@ -31,7 +19,7 @@ function initialize(passport, activeUsers) {
           if (!username) {
             done(null, false, { message: "user not found" });
           } else {
-            let hash = randomGen();
+            let hash = randomGen(1);
             const payload = { id: hash, name: username };
             console.log(payload);
             activeUsers.push(payload);

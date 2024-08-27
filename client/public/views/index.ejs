@@ -3,23 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Join a Room</title>
   </head>
   <%- include('./partials/css/index.ejs')%>
 
-  <style>
-  input[type="submit"]:hover{
-	background:#000;
-	color:#fff;
-        transition:.25s;
-}
- </style>
   <body>
-    <h1>Login</h1>
-    <form action="/login-attempt" method="POST" id="login">
-      <input style="outline:none;margin:.75rem 0;padding:.5rem 1rem;border-radius:20px;border:none;box-shadow:0 .25rem 6px .75px #333;" type="text" name="username" class="login-info" />
-      <input type="submit" style="transition:.75s;border-radius:12px;padding:.5rem 1rem;font-size:14px;border:none;cursor:pointer;" onclick="(e)=>e.preventDefault()" />
-    </form>
-    <%- include('./partials/js/index.ejs')%>
+    <%- include('./partials/nav/index.ejs')%>
+
+    <div id="wrapper">
+      <h1 style="text-align:center;">How can we address you?</h1>
+      <form action="/login-attempt" method="POST" id="login">
+        <input
+          style="
+            outline: none;
+            margin: 0.75rem 0;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 0.25rem 6px 0.75px #333;
+          "
+          type="text"
+          name="username"
+          class="login-info"
+        />
+        <input
+          type="submit"
+          style="
+            transition: 0.75s;
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+          "
+          onclick="(e)=>e.preventDefault()"
+        />
+      </form>
+      <%- include('./partials/js/index.ejs')%>
+    </div>
   </body>
 </html>

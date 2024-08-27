@@ -5,6 +5,13 @@ const createRoom = 'create_room'
 const socketIoStart = (io) => {
   // Initiate socket connection
   io.on("connection", (socket) => {
+    let user = socket.request.session
+        ? socket.request.session.passport.user
+        : "";
+
+        // socket.id = !user ? socket.id : user.id
+
+        console.log(socket.id)
     // create a room
     socket.on(createRoom, room => {
       console.log('new room created: ' + room)

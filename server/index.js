@@ -21,8 +21,7 @@ const express = require("express"),
   ({ setMaxListeners } = require("events")),
   (socketIoStart = require("./socketio.js")),
   (docker = "http://localhost:6786"),
-  ({ createProxyMiddleware } = require("http-proxy-middleware"));
-
+  ({ createProxyMiddleware } = require("http-proxy-middleware"))
 let messages = {},
   activeUsers = [],
   rooms = [];
@@ -43,9 +42,9 @@ const checkNotAuthenticated = (req, res, next) => {
 };
 
 const sessionMiddleware = session({
-  name: "uniqueCookieName",
+  name: 'uniqCkie',
   cookie: {
-    maxAge: 21600000,
+    maxAge: 180000,
     secure: false,
     sameSite: "strict",
     httpOnly: true,

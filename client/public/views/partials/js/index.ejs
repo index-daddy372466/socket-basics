@@ -1,6 +1,19 @@
 <script>
     const username = document.querySelector("input[type=text]");
+    const joinbtn = document.querySelector('#join-btn>a')
     window.onload = (e) => {
       username.focus();
     };
+
+    joinbtn.onclick = e => {
+      e.preventDefault()
+      username.focus()
+    }
+
+    // set min & max length of user's display name
+    let {max,min} = {max:12,min:4}
+    console.log(max,min)
+    username.setAttribute('maxlength',max)
+    username.setAttribute('minlength',min)
+
   </script>
