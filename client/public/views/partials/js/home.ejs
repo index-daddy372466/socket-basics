@@ -116,7 +116,7 @@
 
     let bool = [...curses].filter((word, idx) => {
       let reg = new RegExp(`${word}`, "ig");
-      return combine.includes(val) || reg.test(val);
+      return ((val=='hello') && (combine.includes(val) || reg.test(val))) || (combine.includes(val) || reg.test(val))
     });
     return bool.length > 0;
   }
