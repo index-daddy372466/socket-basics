@@ -76,7 +76,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 io.engine.use(sessionMiddleware);
-let userbool = false;
 
 // socket io
 socketIoStart(io);

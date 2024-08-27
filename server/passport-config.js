@@ -1,5 +1,4 @@
 const LocalStrategy = require("passport-local").Strategy;
-const crypto = require("crypto");
 const randomGen = () => {
   let randoms = [];
   let salt = 11;
@@ -11,9 +10,8 @@ const randomGen = () => {
     randoms.push(gen());
     salt--;
   }
-    return randoms.join``;
+  return randoms.join``;
 };
-
 function initialize(passport, activeUsers) {
   // get user by id
   const getUserById = (id) => {
@@ -23,15 +21,17 @@ function initialize(passport, activeUsers) {
     new LocalStrategy(
       {
         usernameField: "username",
+        passwordField: "username",
+        passReqField: true,
         session: true,
       },
-      async (username, password, done) => {
+      async (username, _, done) => {
         // authentication method
         try {
           if (!username) {
             done(null, false, { message: "user not found" });
           } else {
-            let hash = randomGen()
+            let hash = randomGen();
             const payload = { id: hash, name: username };
             console.log(payload);
             activeUsers.push(payload);
