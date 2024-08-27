@@ -1,8 +1,8 @@
 <script>
   // fetch docker api
-  // fetch("/numbers")
-  //   .then((r) => r.json())
-  //   .then((d) => console.log(d.numbers));
+  fetch('/numbers')
+    .then((r) => r.json())
+    .then((d) => console.log(d.numbers));
 
   let socket = io();
 
