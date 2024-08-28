@@ -66,6 +66,7 @@ app.use("/api/home", createProxyMiddleware({ target: docker + "/api/home" }));
 app.use("/numbers", createProxyMiddleware({ target: docker + "/api/numbers" }));
 app.set("views", path.resolve(__dirname, "../client/public/views"));
 app.set("view engine", "ejs");
+app.use(express.static(path.resolve(__dirname,'../client/public')))
 initializePassport(passport, activeUsers);
 app.use(express.json());
 app.use(cookieParser());
@@ -108,6 +109,10 @@ app.route("/home").get(checkAuthenticated, (req, res) => {
   res.render("home.ejs");
 });
 
+// character selection
+app.route("/char-selection").get(checkAuthenticated, (req, res) => {
+  res.render('character.ejs')
+});
 // login page
 app.route("/login").get(checkNotAuthenticated, (req, res) => {
   res.render('index.ejs')
@@ -115,7 +120,7 @@ app.route("/login").get(checkNotAuthenticated, (req, res) => {
 // login attempt
 app.route("/login-attempt").post(
   passport.authenticate("local", {
-    successRedirect: "/home",
+    successRedirect: "/char-selection",
     failureRedirect: "/",
   })
 );
