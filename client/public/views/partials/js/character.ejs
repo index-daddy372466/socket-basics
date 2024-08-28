@@ -1,0 +1,21 @@
+<script>
+
+
+
+let characters = [...document.querySelectorAll('.char-btn>img')]
+// map characters (image elements)
+let charInfo = characters.map((image,index)=>{
+  // retrieve src, position and animal's name from src
+  let src = image.src;
+  let pos = [index%3,index<3?0:1]
+  let animal = src.replace(/(.*?\/media\/)|(\.jpeg)/g,'')
+  // store variables into an object
+  const object = {}
+  object.pos = pos;
+  object.animal = animal;
+  // return animal object
+  return object
+})
+
+
+</script>
