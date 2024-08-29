@@ -74,7 +74,7 @@
             messages.map((msg, index) => {
               sameSender = msg["sender"] === user.name;
               let photo = msg["icon"];
-              console.log(photo)
+              // console.log(photo)
               let li = document.createElement("li");
               let img = document.createElement("img");
               img.height = "45";
@@ -118,7 +118,7 @@
     console.log(name + 'left the room')
     if (names.indexOf(name) == -1) {
         names.push(name);
-        console.log(names);
+        // console.log(names);
       }
     leavingarr.children[0].textContent =
         names.length > 0 && names.length < 2
@@ -131,6 +131,7 @@
   })
   // user is typing to the server
   text.onkeypress = (e) => {
+  
     if (e.which != 13) {
       typing = true;
       socket.emit("typing", roomname);
@@ -141,13 +142,15 @@
         typing = false;
         socket.emit("typing", roomname);
         socket.emit("keyboard", typing, roomname);
+        typingarr.children[0].textContent=''
+        
       }, 2750);
     }
     let names = [];
     socket.on("typing", (name) => {
       if (names.indexOf(name) == -1) {
         names.push(name);
-        console.log(names);
+        // console.log(names);
       }
       // set paragraph textcontent to the updated names array
       typingarr.children[0].textContent =
@@ -197,13 +200,20 @@
       fetch(`/room/${roomname}/${text.value}`)
         .then((r) => r.json())
         .then((d) => console.log(d));
-      socket.emit("public_message", text.value, roomname, ph);
+      socket.emit("public_message", text.value, roomname, ph,Date.now());
       text.value = "";
     }
   };
 
   // append li to chatbox
-  socket.on("send_it", (msg, name, photo) => {
+  socket.on("send_it", (msg, name, photo, date) => {
+    // if offset equals -60 then the time zone offset is UTC+01
+    var offset = Math.floor(new Date().getTimezoneOffset() / 60) * (60*60*1000);
+    let newdate = new Date(date).getTime() - offset
+    let localdate = new Date(newdate).toISOString()
+    console.log(localdate)
+    let current_time = localdate.split('T')[1].match(/\d+:\d+:\d+/g).join``
+    console.log(current_time)
     let li = document.createElement("li");
     let img = document.createElement('img')
     let p = document.createElement("p");

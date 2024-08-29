@@ -48,11 +48,11 @@ const socketIoStart = (io) => {
     );
 
     // server recieves public message from any socket
-    socket.on(public, (msg, currentroom, photo) => {
+    socket.on(public, (msg, currentroom, photo, date) => {
       let user = socket.request.session
         ? socket.request.session.passport.user
         : "";
-      io.to(currentroom).emit(sending, msg, user["name"], photo);
+      io.to(currentroom).emit(sending, msg, user["name"], photo, date);
     });
     socket.on('user_leaves',(room)=>{
       console.log(room)
