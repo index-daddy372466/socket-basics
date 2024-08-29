@@ -18,7 +18,7 @@
             type:'POST',
             url:'/char/icon',
             data:{icon:animal},
-            success:(d=>window.location.href = `http://localhost:4443/home`),
+            success:(d=>window.location.href = `${location.origin}/home`),
             fail: function(){
               alert('request failed')
             }
