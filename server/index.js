@@ -143,7 +143,11 @@ app.route("/").get((req, res) => {
 });
 // home page GET
 app.route("/home").get(checkAuthenticated, (req, res) => {
-  res.render("home.ejs");
+  let obj = activeUsers.find(user=>user.id==req.user.id)
+  let checkNoIcon = !obj.hasOwnProperty('icon');
+  res.render("home.ejs",{
+    checkIcon:checkNoIcon
+  });
 });
 
 // character selection
@@ -158,7 +162,7 @@ app.route('/char/icon').post(checkNoIcon,(req,res)=>{
     if(req.user){
       // console.log(req.user.id)
       activeUsers.find(user=>user.id==req.user.id).icon = icon
-      let curruser = activeUsers.filter(user=>user.id==req.user.id)
+      let curruser = activeUsers.filter(user=>user.id==req .user.id)
       console.log(curruser)
 
       res.json({icon:icon})
@@ -166,6 +170,22 @@ app.route('/char/icon').post(checkNoIcon,(req,res)=>{
   }
   catch(err){
     throw err;
+  }
+})
+
+// icon picture GET
+app.route('/char/photo').get((req,res)=>{
+  if(req.user){
+    let obj = activeUsers.find(user=>user.id === req.user.id);
+    if(!obj.hasOwnProperty('icon')){
+      res.send(`Choose a character. <a href="/char-selection">Choose character</a><br>Go home. <a href="/home">Home</a>`)
+    }
+    else{
+      res.json({icon:obj.icon})
+    }
+  }
+  else{
+    res.send(`Sign in. <a href="/login">Sign in</a>`)
   }
 })
 // login page
@@ -255,10 +275,8 @@ app.get("/room/:room", checkAuthenticated, checkIcon, (req, res) => {
 // store messages in fake db
 app.get("/room/:room/:message", (req, res) => {
   const { room, message } = req.params;
-  // push message into array;
-  // messages = [...messages,message]
-  // res.json({messages:messages})
-  let obj = { message: message, sender: req.user.name };
+  let activeuser = activeUsers.find(u=>u.id==req.user.id);
+  let obj = { message: message, sender: req.user.name, icon:activeuser.icon  };
   messages[room] = [...messages[room], obj];
   res.json({ messages: messages[room] });
   // res.redirect('/room/'+room)

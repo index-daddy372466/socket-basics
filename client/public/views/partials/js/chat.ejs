@@ -1,10 +1,19 @@
 <script>
   // fetch docker api
-  fetch('/numbers')
-    .then((r) => r.json())
-    .then((d) => console.log(d.numbers));
+  // fetch('/numbers')
+  //   .then((r) => r.json())
+  //   .then((d) => console.log(d.numbers));
 
   let socket = io();
+
+  // fetch profile photo by name
+  const getProfilePhoto = async (url) => {
+    let response = await fetch("/char/photo")
+      .then((r) => r.json())
+      .then((d) => d.icon);
+    return response;
+  };
+  let photo = getProfilePhoto("/char/photo");
 
   // declare form & text-input
   let form = document.getElementById("form");
@@ -18,7 +27,6 @@
   let typingarr = document.getElementById("typing-users");
 
   // fix typing array (typing indicator)
-  console.log(typingarr);
   typingarr.style.bottom = text.clientHeight + 20 + "px";
 
   // ejs rendered variable
@@ -46,7 +54,6 @@
 
     // retrieve user's name from socket
     socket.on("get_name", async (user) => {
-      console.log("get_name: ");
       // fetch for existing chats & append to chatbox
       // get existing messages
       let chats = await fetch(`/${roomname}/sec/messages`)
@@ -56,16 +63,28 @@
             let messages = [...d.messages];
             messages.map((msg, index) => {
               sameSender = msg["sender"] === user.name;
+              let photo = msg["icon"];
+              console.log(photo)
               let li = document.createElement("li");
+              let img = document.createElement("img");
+              img.height = "50";
+              img.width = "50";
+              img.style = "border-radius:50%";
+              img.src = `../../../media/${photo}.jpeg`;
+              img.classList.add('img-margin')
               let p = document.createElement("p");
               li.classList.add("list-item");
-              li.appendChild(p)
-              !sameSender ? p.classList.add("p-left") : p.classList.add("p-right");
+              li.appendChild(p);
+              !sameSender
+                ? p.classList.add("p-left")
+                : p.classList.add("p-right");
               !sameSender
                 ? li.classList.add("left")
                 : li.classList.add("right");
-              p.textContent =  msg.message
+              p.textContent = msg.message;
               chatbox.appendChild(li);
+              li.appendChild(img);
+              
             });
           }
         });
@@ -97,7 +116,9 @@
           ? [...names].join("") + " is typing..."
           : names.length > 1 && names.length < 3
           ? [...names].join(" and ") + " are typing..."
-          : [...names].map((n,i)=>i==names.length-1 ? 'and ' + n : n).join(", ") + " are typing...";
+          : [...names]
+              .map((n, i) => (i == names.length - 1 ? "and " + n : n))
+              .join(", ") + " are typing...";
     });
     // keyboard display
     socket.on("keyboard", (bool, name) => {
@@ -127,7 +148,8 @@
   };
   let sameSender = false; // verify if the sender if you
   // submit onclick
-  submit.onclick = (e) => {
+  submit.onclick = async(e) => {
+    let ph = await photo;
     setTimeout(() => chatbox.scrollTo(0, 1000), 250);
     sameSender = true;
     e.preventDefault();
@@ -136,22 +158,29 @@
       fetch(`/room/${roomname}/${text.value}`)
         .then((r) => r.json())
         .then((d) => console.log(d));
-      socket.emit("public_message", text.value, roomname);
+      socket.emit("public_message", text.value, roomname, ph);
       text.value = "";
     }
   };
 
   // append li to chatbox
-  socket.on("send_it", (msg, name) => {
+  socket.on("send_it", (msg, name, photo) => {
     let li = document.createElement("li");
+    let img = document.createElement('img')
     let p = document.createElement("p");
     li.classList.add("list-item");
-    li.appendChild(p)
+    img.height = "50";
+    img.width = "50";
+    img.style = "border-radius:50%";
+    img.src = `../../../media/${photo}.jpeg`;
+    img.classList.add('img-margin')
+    li.appendChild(p);
+    li.appendChild(img)
     !sameSender ? p.classList.add("p-left") : p.classList.add("p-right");
     // once the li is created, text-align start/end based off of receiver/sender respectively
     !sameSender ? li.classList.add("left") : li.classList.add("right");
     sameSender = false;
-    p.textContent = msg
+    p.textContent = msg;
     chatbox.appendChild(li);
 
     setTimeout(
