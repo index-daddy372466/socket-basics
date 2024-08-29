@@ -1,5 +1,5 @@
 require("dotenv").config();
-let PORT = !process.env.PORT ? 4447 : process.env.PORT;
+let PORT = process.env.PORT || 4447;
 const express = require("express"),
   app = express(),
   // http = require("http"),
@@ -8,7 +8,6 @@ const express = require("express"),
   }),
   { Server } = require("socket.io"),
   io = new Server(httpServer);
-(PORT = !process.env.PORT ? 4447 : process.env.PORT),
   (AXI = !process.env._AXI_ ? 4448 : process.env._AXI_),
   (path = require("path")),
   (cors = require("cors")),

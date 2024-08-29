@@ -25,9 +25,19 @@
   let typing = false;
   let timeout = undefined;
   let typingarr = document.getElementById("typing-users");
+  let leavingarr = document.getElementById("leaving-users");
 
-  // fix typing array (typing indicator)
-  typingarr.style.bottom = text.clientHeight + 20 + "px";
+  // fix typing array (typing indicator)\
+  if(window.innerWidth <= 650){
+    typingarr.style.top = text.getBoundingClientRect().y - (text.clientHeight-5) + "px";
+    leavingarr.style.top = text.getBoundingClientRect().y - (text.clientHeight-5) + "px";
+    leavingarr.style.right = 30 + 'px'
+  } else {
+    typingarr.style.bottom = text.clientHeight + 20 + "px";
+    leavingarr.style.bottom = text.clientHeight + 35 + "px";
+    leavingarr.style.right = 30 + 'px'
+  }
+
 
   // ejs rendered variable
   const roomname = "<%= room %>";
@@ -102,7 +112,7 @@
     clearTimeout(userGone)
     userGone = setTimeout(()=>{
       console.log('finished')
-      typingarr.children[0].textContent = ''
+      leavingarr.children[0].textContent = ''
       names = [];
     },1750)
     console.log(name + 'left the room')
@@ -110,7 +120,7 @@
         names.push(name);
         console.log(names);
       }
-    typingarr.children[0].textContent =
+    leavingarr.children[0].textContent =
         names.length > 0 && names.length < 2
           ? [...names].join("") + " left the room..."
           : names.length > 1 && names.length < 3
@@ -125,6 +135,7 @@
       typing = true;
       socket.emit("typing", roomname);
       socket.emit("keyboard", typing, roomname);
+      
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         typing = false;
