@@ -67,8 +67,8 @@
               console.log(photo)
               let li = document.createElement("li");
               let img = document.createElement("img");
-              img.height = "30";
-              img.width = "30";
+              img.height = "45";
+              img.width = "45";
               img.style = "border-radius:50%";
               img.src = `../../../media/${photo}.jpeg`;
               img.classList.add('img-margin')
@@ -84,13 +84,13 @@
               p.textContent = msg.message;
               chatbox.appendChild(li);
               li.appendChild(img);
-              
             });
           }
         });
     });
   };
 
+  let userGone;
   // user leaves chat
   const leaveBtn = document.querySelector('#home-btn>a')
   leaveBtn.onclick = e => { 
@@ -99,6 +99,12 @@
   // server displays who left to all other sockets
   let names = [];
   socket.on('user_leaves_out',name => {
+    clearTimeout(userGone)
+    userGone = setTimeout(()=>{
+      console.log('finished')
+      typingarr.children[0].textContent = ''
+      names = [];
+    },1750)
     console.log(name + 'left the room')
     if (names.indexOf(name) == -1) {
         names.push(name);
@@ -191,8 +197,8 @@
     let img = document.createElement('img')
     let p = document.createElement("p");
     li.classList.add("list-item");
-    img.height = "50";
-    img.width = "50";
+    img.height = "45";
+    img.width = "45";
     img.style = "border-radius:50%";
     img.src = `../../../media/${photo}.jpeg`;
     img.classList.add('img-margin')

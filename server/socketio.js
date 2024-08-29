@@ -59,7 +59,7 @@ const socketIoStart = (io) => {
       let user = socket.request.session
         ? socket.request.session.passport.user
         : "";
-        socket.to(room).emit('user_leaves_out',user['name'])
+        io.to(room).emit('user_leaves_out',user['name'])
     })
     // disconnect socket
     socket.on("disconnect", () => {
