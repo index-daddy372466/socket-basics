@@ -1,21 +1,30 @@
 <script>
-
-
-
-let characters = [...document.querySelectorAll('.char-btn>img')]
-// map characters (image elements)
-let charInfo = characters.map((image,index)=>{
-  // retrieve src, position and animal's name from src
-  let src = image.src;
-  let pos = [index%3,index<3?0:1]
-  let animal = src.replace(/(.*?\/media\/)|(\.jpeg)/g,'')
-  // store variables into an object
-  const object = {}
-  object.pos = pos;
-  object.animal = animal;
-  // return animal object
-  return object
-})
-
-
+  // initiate jquery
+  $(document).ready(function () {
+    console.log("jquery is ready");
+    // list of characters
+    let chars = $(".char-btn");
+    console.log(chars);
+    // iterate through characters array
+    chars.each((index, character) => {
+      // store image into a variable
+      // click event
+      let animal = $(character).children()[0].src.split('/')[4].replace(/\.jpeg/,'')
+      console.log(animal)
+      // post fetch to server
+      $(character).click(function () {
+        // basic ajax post object
+          $.ajax({
+            type:'POST',
+            url:'/char/icon',
+            data:{icon:animal},
+            success:(d=>window.location.href = `http://localhost:4443/home`),
+            fail: function(){
+              alert('request failed')
+            }
+          })
+        })
+      
+    });
+  });
 </script>

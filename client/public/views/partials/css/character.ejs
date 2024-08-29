@@ -26,22 +26,28 @@
     }
     ul#char-container{
         display:grid;
-        width:60%;
-        grid-template-columns: 1fr 1fr 1fr;
+        width:100%;
+        height:100vh;
+        grid-template-columns: auto auto auto;
+        align-content: center;
+        justify-items: center;
         border:3px solid red;
         gap:.25rem;
     }
     div.char-btn{
-        border:4px solid #333;
-        height:100%;
-        width:100%;
+        border:1rem double rgba(255, 217, 0, 0.253);
+        box-shadow: 0 2px 6px .7px #333;
         display:flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         cursor:pointer;
-    };
+        overflow:hidden;
+        transition:.25s;
+        border-radius:50%;
 
+    };
+    
     .current-selection{
         opacity:.5;
         border:5px solid green;

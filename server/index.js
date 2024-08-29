@@ -26,6 +26,7 @@ let messages = {},
   activeUsers = [],
   rooms = [];
 
+
 const checkAuthenticated = (req, res, next) => {
   if (req.user) {
     next();
@@ -34,12 +35,31 @@ const checkAuthenticated = (req, res, next) => {
   }
 };
 const checkNotAuthenticated = (req, res, next) => {
+  console.log(activeUsers)
   if (!req.user) {
     next();
   } else {
     res.redirect("/home");
   }
 };
+  // check is a user already has a profile photo.
+  const checkNoIcon = (req,res,next) => {
+    // if user is logged in and found in activeUsers
+    if(!req.user){
+      console.log('user and icon not found. going login')
+      res.redirect('/login')
+    }
+    // if user is logged in, but does not have an icon set
+    else if(req.user && !activeUsers.filter(u=>req.user.id===u.id)[0].icon){
+      console.log('choose a character')
+      next();
+    }
+    else {
+      console.log('user & icon is found. going home')
+      res.redirect('/home')
+    }
+  
+  }
 
 const sessionMiddleware = session({
   name: 'uniqCkie',
@@ -110,15 +130,33 @@ app.route("/home").get(checkAuthenticated, (req, res) => {
 });
 
 // character selection
-app.route("/char-selection").get(checkAuthenticated, (req, res) => {
+app.route("/char-selection").get(checkNoIcon, (req, res) => {
   res.render('character.ejs')
 });
+// test - post animal to a user in activeUsers
+app.route('/char/icon').post(checkNoIcon,(req,res)=>{
+  const {icon} = req.body;
+  console.log(icon)
+  try{
+    if(req.user){
+      // console.log(req.user.id)
+      activeUsers.find(user=>user.id==req.user.id).icon = icon
+      let curruser = activeUsers.filter(user=>user.id==req.user.id)
+      console.log(curruser)
+
+      res.json({icon:icon})
+    }
+  }
+  catch(err){
+    throw err;
+  }
+})
 // login page
 app.route("/login").get(checkNotAuthenticated, (req, res) => {
   res.render('index.ejs')
 });
 // login attempt
-app.route("/login-attempt").post(
+app.route("/login-attempt").post(checkNotAuthenticated,
   passport.authenticate("local", {
     successRedirect: "/char-selection",
     failureRedirect: "/",
