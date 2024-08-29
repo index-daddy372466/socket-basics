@@ -34,17 +34,34 @@ const checkAuthenticated = (req, res, next) => {
     res.redirect("/login");
   }
 };
+
 const checkNotAuthenticated = (req, res, next) => {
-  console.log(activeUsers)
   if (!req.user) {
     next();
   } else {
     res.redirect("/home");
   }
 };
+
+
+const checkIcon = (req,res,next)=>{
+  if(req.user){
+    console.log(activeUsers)
+    console.log('checking icon')
+    console.log(req.user)
+    let getActive = activeUsers.filter(x=>x.id==req.user.id)
+    console.log(getActive)
+    if(getActive[0].hasOwnProperty('icon')){
+      next();
+    } else {
+      res.redirect('/char-selection')
+    }
+  }
+    
+}
   // check is a user already has a profile photo.
   const checkNoIcon = (req,res,next) => {
-    // if user is logged in and found in activeUsers
+    // if user is not logged in and not
     if(!req.user){
       console.log('user and icon not found. going login')
       res.redirect('/login')
@@ -226,7 +243,7 @@ app.post("/room/create", checkAuthenticated, (req, res) => {
     throw err;
   }
 });
-app.get("/room/:room", checkAuthenticated, (req, res) => {
+app.get("/room/:room", checkAuthenticated, checkIcon, (req, res) => {
   if (!rooms.includes(req.params.room)) {
     res.status(403).json({ err: "unauthorized!" });
   } else {
