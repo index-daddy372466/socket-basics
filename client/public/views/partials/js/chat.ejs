@@ -67,8 +67,8 @@
               console.log(photo)
               let li = document.createElement("li");
               let img = document.createElement("img");
-              img.height = "50";
-              img.width = "50";
+              img.height = "30";
+              img.width = "30";
               img.style = "border-radius:50%";
               img.src = `../../../media/${photo}.jpeg`;
               img.classList.add('img-margin')
@@ -91,6 +91,28 @@
     });
   };
 
+  // user leaves chat
+  const leaveBtn = document.querySelector('#home-btn>a')
+  leaveBtn.onclick = e => { 
+    socket.emit('user_leaves',roomname);
+  }
+  // server displays who left to all other sockets
+  let names = [];
+  socket.on('user_leaves_out',name => {
+    console.log(name + 'left the room')
+    if (names.indexOf(name) == -1) {
+        names.push(name);
+        console.log(names);
+      }
+    typingarr.children[0].textContent =
+        names.length > 0 && names.length < 2
+          ? [...names].join("") + " left the room..."
+          : names.length > 1 && names.length < 3
+          ? [...names].join(" and ") + " left the room..."
+          : [...names]
+              .map((n, i) => (i == names.length - 1 ? "and " + n : n))
+              .join(", ") + " left the room...";
+  })
   // user is typing to the server
   text.onkeypress = (e) => {
     if (e.which != 13) {
@@ -120,7 +142,7 @@
               .map((n, i) => (i == names.length - 1 ? "and " + n : n))
               .join(", ") + " are typing...";
     });
-    // keyboard display
+    // keyboard display/user typing
     socket.on("keyboard", (bool, name) => {
       let index = [...names].indexOf(name);
       if (bool == true) {

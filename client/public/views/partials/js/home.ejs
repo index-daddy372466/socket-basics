@@ -1,6 +1,6 @@
 <script>
   const textinput = document.getElementById('text-input')
-  const socket = io()
+  // const socket = io()
   // set tile positions
   window.onload = async (e) => {
     textinput.focus();
@@ -96,7 +96,7 @@
         let rooms = data.room; // array of rooms
         let target = rooms[rooms.length - 1];
         // user/socket creates a room and sends request to the server
-        socket.emit('create_room',target);
+        // socket.emit('create_room',target);
         // server broadcasts sender's request to everyone in home page
         inTake(target);
       });

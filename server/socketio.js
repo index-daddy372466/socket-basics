@@ -54,7 +54,13 @@ const socketIoStart = (io) => {
         : "";
       io.to(currentroom).emit(sending, msg, user["name"], photo);
     });
-
+    socket.on('user_leaves',(room)=>{
+      console.log(room)
+      let user = socket.request.session
+        ? socket.request.session.passport.user
+        : "";
+        socket.to(room).emit('user_leaves_out',user['name'])
+    })
     // disconnect socket
     socket.on("disconnect", () => {
       console.log("socket disconnected");
