@@ -100,7 +100,8 @@
               p.onmouseout=e=>{time.classList.remove('time-piece-hover')
               p.classList.remove('p-lower')
               }
-              li.classList.add("list-item");''
+              li.classList.add("list-item");
+              li.classList.add('no-select')
               li.appendChild(p);
               !sameSender
                 ? p.classList.add("p-left")
@@ -120,19 +121,23 @@
   let userGone;
   // user leaves chat
   const leaveBtn = document.querySelector('#home-btn>a')
+  const logoutBtn = document.querySelector('#logout-btn>a')
   leaveBtn.onclick = e => { 
     socket.emit('user_leaves',roomname);
   }
+  logoutBtn.onclick = e => { 
+    socket.emit('user_leaves',roomname);
+  }
+
+  
   // server displays who left to all other sockets
   let names = [];
   socket.on('user_leaves_out',name => {
     clearTimeout(userGone)
     userGone = setTimeout(()=>{
-      console.log('finished')
       leavingarr.children[0].textContent = ''
       names = [];
     },1750)
-    console.log(name + 'left the room')
     if (names.indexOf(name) == -1) {
         names.push(name);
         // console.log(names);
@@ -160,14 +165,12 @@
         socket.emit("typing", roomname);
         socket.emit("keyboard", typing, roomname);
         typingarr.children[0].textContent=''
-        
-      }, 2750);
+      }, 3000);
     }
     let names = [];
     socket.on("typing", (name) => {
       if (names.indexOf(name) == -1) {
         names.push(name);
-        // console.log(names);
       }
       // set paragraph textcontent to the updated names array
       typingarr.children[0].textContent =

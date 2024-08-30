@@ -1,5 +1,15 @@
 <style>
+  .noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+          }
   * {
+    
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -105,7 +115,7 @@
     overflow-y: scroll;
     margin-bottom: 3rem;
     padding-bottom: 3rem;
-    padding-top: 0.5rem;
+    padding-top: 1.5rem;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
@@ -136,6 +146,7 @@
     border-radius: 20px;
     border: none;
     transition:.5s;
+    z-index:999;
   }
 
  #logout-btn {
@@ -144,7 +155,6 @@
 
   #logout-btn > a {
     transition: 0.75s;
-    z-index: 999;
     text-decoration: none;
     color: #fff;
     padding: 0.5rem 1rem;
@@ -186,8 +196,7 @@
   .time-piece{
     position:absolute;
     opacity: 0;
-    z-index:999;
-    transition:.5s;
+    transition:.25s;
   }
   .tp-left{
     left:10px;
@@ -200,7 +209,7 @@
     transition:.25s;
   }
   .time-piece-hover{
-    transition:.25s;
+    transition:.5s;
     opacity:1;
     transform:translate(0,-15px);
   }
