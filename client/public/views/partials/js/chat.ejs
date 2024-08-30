@@ -69,6 +69,7 @@
       let chats = await fetch(`/${roomname}/sec/messages`)
         .then((r) => r.json())
         .then((d) => {
+          console.log(d)
           if (d.messages !== "no messages") {
             let messages = [...d.messages];
             messages.map((msg, index) => {
