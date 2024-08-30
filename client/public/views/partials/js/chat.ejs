@@ -74,16 +74,33 @@
             messages.map((msg, index) => {
               sameSender = msg["sender"] === user.name;
               let photo = msg["icon"];
-              // console.log(photo)
+              let timestamp = msg['timestamp']
+              let localdate = new Date(timestamp).toISOString()
+              let current_time = localdate.split('T')[1].match(/\d+:\d+:\d+/g).join``
               let li = document.createElement("li");
               let img = document.createElement("img");
+              let time = document.createElement('time');
+              time.datetime = current_time;
+              time.textContent = current_time;
+              time.classList.add('time-piece')
+              time.classList.add(!sameSender ? 'tp-left' : 'tp-right')
               img.height = "45";
               img.width = "45";
               img.style = "border-radius:50%";
               img.src = `../../../media/${photo}.jpeg`;
               img.classList.add('img-margin')
+              li.append(time)
               let p = document.createElement("p");
-              li.classList.add("list-item");
+              p.onclick=e=>{time.classList.add('time-piece-hover')
+              p.classList.add('p-lower')
+              }
+              p.ontouchstart=e=>{time.classList.add('time-piece-hover')
+              p.classList.add('p-lower')
+              }
+              p.onmouseout=e=>{time.classList.remove('time-piece-hover')
+              p.classList.remove('p-lower')
+              }
+              li.classList.add("list-item");''
               li.appendChild(p);
               !sameSender
                 ? p.classList.add("p-left")
@@ -208,21 +225,36 @@
   // append li to chatbox
   socket.on("send_it", (msg, name, photo, date) => {
     // if offset equals -60 then the time zone offset is UTC+01
-    var offset = Math.floor(new Date().getTimezoneOffset() / 60) * (60*60*1000);
+    let offset = Math.floor(new Date(date).getTimezoneOffset() / 60) * (60*60*1000);
     let newdate = new Date(date).getTime() - offset
     let localdate = new Date(newdate).toISOString()
-    console.log(localdate)
     let current_time = localdate.split('T')[1].match(/\d+:\d+:\d+/g).join``
     console.log(current_time)
     let li = document.createElement("li");
+    let time = document.createElement('time');
+    time.datetime = current_time;
+    time.textContent = current_time;
+    time.classList.add('time-piece')
+    time.classList.add(!sameSender ? 'tp-left' : 'tp-right')
     let img = document.createElement('img')
     let p = document.createElement("p");
     li.classList.add("list-item");
+    p.onclick=e=>{time.classList.add('time-piece-hover')
+    p.classList.add('p-lower')
+    }
+    p.ontouchstart=e=>{time.classList.add('time-piece-hover')
+    p.classList.add('p-lower')
+    }
+    p.onmouseout=e=>{time.classList.remove('time-piece-hover')
+    p.classList.remove('p-lower')
+    }
+    
     img.height = "45";
     img.width = "45";
     img.style = "border-radius:50%";
     img.src = `../../../media/${photo}.jpeg`;
     img.classList.add('img-margin')
+    li.append(time)
     li.appendChild(p);
     li.appendChild(img)
     !sameSender ? p.classList.add("p-left") : p.classList.add("p-right");

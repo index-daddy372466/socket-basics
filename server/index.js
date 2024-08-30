@@ -274,8 +274,10 @@ app.get("/room/:room", checkAuthenticated, checkIcon, (req, res) => {
 // store messages in fake db
 app.get("/room/:room/:message", (req, res) => {
   const { room, message } = req.params;
+  var offset = Math.floor(new Date().getTimezoneOffset() / 60) * (60*60*1000);
+  let timestamp = new Date().getTime() - offset
   let activeuser = activeUsers.find(u=>u.id==req.user.id);
-  let obj = { message: message, sender: req.user.name, icon:activeuser.icon  };
+  let obj = { message: message, sender: req.user.name, icon:activeuser.icon, timestamp:timestamp };
   messages[room] = [...messages[room], obj];
   res.json({ messages: messages[room] });
   // res.redirect('/room/'+room)
