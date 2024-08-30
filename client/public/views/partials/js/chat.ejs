@@ -76,6 +76,8 @@
               sameSender = msg["sender"] === user.name;
               let photo = msg["icon"];
               let timestamp = msg['timestamp']
+              // let offset = Math.floor(new Date(timestamp).getTimezoneOffset() / 60) * (60*60*1000);
+              // let newdate = timestamp - offset
               let localdate = new Date(timestamp).toISOString()
               let current_time = localdate.split('T')[1].match(/\d+:\d+:\d+/g).join``
               let li = document.createElement("li");
