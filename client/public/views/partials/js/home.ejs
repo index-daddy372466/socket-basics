@@ -4,9 +4,16 @@
   // set tile positions
   window.onload = async (e) => {
     textinput.focus();
-    tiles = [...tiles].map((t, index) => {
-      t.style.width = `${document.body.clientWidth / tiles.length}px`;
-      t.style.left = `${(document.body.clientWidth / tiles.length) * index}px`;
+    let copy,sugar
+    if(window.innerWidth <= 650){
+      copy = [...tiles].slice(1,[...tiles].length)
+    }
+    else{
+      copy = [...tiles]
+    }
+    tiles = [...copy].map((t, index) => {
+      t.style.width = `${document.body.clientWidth / copy.length}px`;
+      t.style.left = `${(document.body.clientWidth / copy.length) * index}px`;
     });
 
     // get exisitng rooms
@@ -17,7 +24,7 @@
     if (existing !== "no data") {
       existing.map((ex) => inTake(ex));
     }
-  };
+  }
 
   let intake = document.getElementById("intake");
   let tiles = [...document.querySelectorAll(".tile")]
