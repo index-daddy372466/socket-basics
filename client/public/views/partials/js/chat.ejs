@@ -14,7 +14,7 @@
     return response;
   };
   let photo = getProfilePhoto("/char/photo");
-
+  
   // declare form & text-input
   let form = document.getElementById("form");
   let text = document.getElementById("text");
@@ -90,7 +90,7 @@
               img.height = "45";
               img.width = "45";
               img.style = "border-radius:50%";
-              img.src = `../../../media/${photo}.jpeg`;
+              img.src = `../../../media/${photo}`;
               img.classList.add('img-margin')
               li.append(time)
               let p = document.createElement("p");
@@ -215,6 +215,7 @@
   // submit onclick
   submit.onclick = async(e) => {
     let ph = await photo;
+    console.log(ph)
     setTimeout(() => chatbox.scrollTo(0, 1000), 250);
     sameSender = true;
     e.preventDefault();
@@ -258,7 +259,7 @@
     img.height = "45";
     img.width = "45";
     img.style = "border-radius:50%";
-    img.src = `../../../media/${photo}.jpeg`;
+    img.src = `../../../media/${photo}`;
     img.classList.add('img-margin')
     li.append(time)
     li.appendChild(p);

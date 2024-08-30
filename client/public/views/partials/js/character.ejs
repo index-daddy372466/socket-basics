@@ -9,7 +9,7 @@
     chars.each((index, character) => {
       // store image into a variable
       // click event
-      let animal = $(character).children()[0].src.split('/')[4].replace(/\.jpeg/,'')
+      let animal = $(character).children()[0].src.split('/')[4]
       console.log(animal)
       // post fetch to server
       $(character).click(function () {
@@ -24,7 +24,6 @@
             }
           })
         })
-      
     });
   });
 </script>
