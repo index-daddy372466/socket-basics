@@ -262,7 +262,7 @@ app.post("/room/create", checkAuthenticated, (req, res) => {
 });
 app.get("/room/:room", checkAuthenticated, checkIcon, (req, res) => {
   if (!rooms.includes(req.params.room)) {
-    res.status(403).json({ err: "unauthorized!" });
+    res.status(403).send( "err: unauthorized!, </a><br>Go home. <a href='/home'>Home</a>" );
   } else {
     res.render("chat.ejs", {
       room: req.params.room,

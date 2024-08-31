@@ -109,6 +109,11 @@
               p.classList.remove('p-lower')
               n.classList.remove('p-lower')
               }
+              window.ontouchstart = e => {
+                time.classList.remove('time-piece-hover')
+              p.classList.remove('p-lower')
+              n.classList.remove('p-lower')
+              }
               li.classList.add("list-item");
               li.classList.add('no-select')
               li.appendChild(p);
