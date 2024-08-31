@@ -186,6 +186,15 @@ app.route("/char/photo").get(checkViolation, (req, res) => {
 });
 // login page
 app.route("/login").get(checkViolation, checkNotAuthenticated, (req, res) => {
+  if (req.query.id) {
+    // retrieve id from query object and pass it to id
+    id = req.query.id;
+    // find the user by id within activeUsers array
+    let findUser = activeUsers.find((user) => user.id == id);
+    // find the user fucking with your app/system
+    console.log("user in violation");
+    console.log(findUser);
+  }
   res.render("index.ejs");
 });
 // login attempt
@@ -224,7 +233,11 @@ app.get("/logout", checkAuthenticated, (req, res) => {
   });
 });
 // lockdown
-app.route("/lockdown").get(checkNotAuthenticated,(req, res) => {
+app.route("/lock1").get(checkNotAuthenticated,checkViolation,(req, res) => {
+  setTimeout(() => httpServer.close(), 750);
+  res.render("lockdown.ejs");
+});
+app.route("/lock2").get(checkAuthenticated,checkViolation,(req, res) => {
   setTimeout(() => httpServer.close(), 750);
   res.render("lockdown.ejs");
 });
@@ -256,7 +269,7 @@ app.route("/room/clear").get(checkViolation, checkAuthenticated, (req, res) => {
   res.redirect("/home");
 });
 // create a room
-app.post("/room/create", checkAuthenticated, (req, res) => {
+app.post("/room/create", checkViolation, checkAuthenticated, (req, res) => {
   console.log(req.body.room);
   let { room } = req.body;
   messages[room] = [];
@@ -369,8 +382,12 @@ function checkViolation(req, res, next) {
     ctr < 2
       ? res.status(403).json({ err: "Data not authorized" })
       : ctr == 2
-      ? res.redirect("/logout?id=" + req.user.id)
-      : res.redirect('/lockdown');
+      ? res.status(403).json({ err: "What are you doing?" })
+      : ctr == 3 
+      ? res.status(403).json({ err: "What the FUCK are you doing? Stop" })
+      : ctr == 4 
+      ? (req.user ? res.redirect("/logout?id=" + req.user.id) : res.redirect('/login'))
+      : (req.user ? res.redirect('/lock2') : res.redirect('/lock1'))
   } else {
     next();
   }
