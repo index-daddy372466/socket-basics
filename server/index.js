@@ -197,7 +197,7 @@ app.route("/login-attempt").post(
   })
 );
 // logout GET
-app.get("/logout", checkAuthenticated, checkViolation, (req, res) => {
+app.get("/logout", checkAuthenticated, (req, res) => {
   let user = req.user,
     id;
   // find the user who is fucking with your system (if query exists)
@@ -224,7 +224,7 @@ app.get("/logout", checkAuthenticated, checkViolation, (req, res) => {
   });
 });
 // lockdown
-app.route("/lockdown").get(checkAuthenticated, checkNoViolation, (req, res) => {
+app.route("/lockdown").get(checkNotAuthenticated,(req, res) => {
   setTimeout(() => httpServer.close(), 750);
   res.render("lockdown.ejs");
 });
@@ -349,45 +349,12 @@ app.use(function (req, res) {
   });
 });
 
+// check for web violations, XXS/Injection/etc...
 let ctr = 0;
 function checkViolation(req, res, next) {
   // create regex
   let properties = /(icon|sender|message)/g;
-  let values =
-    /\s?\S?(<(.*)?\w*>)|\s?\S?(const|var|let)|[=|=>]|(fn|func|function)|[\(|\)]/g;
-  // review the query object's properties
-  if (
-    Object.keys(req.query).find(
-      (property) => typeof property !== "string" || !properties.test(property)
-    )
-  ) {
-    ctr += 1;
-    ctr < 2
-      ? res.status(403).json({ err: "Data not authorized" })
-      : ctr == 2
-      ? res.redirect("/logout?id=" + req.user.id)
-      : res.redirect("/lockdown");
-  } else if (
-    Object.values(req.query).find(
-      (value) => typeof value !== "string" || values.test(value)
-    )
-  ) {
-    ctr += 1;
-    ctr < 2
-      ? res.status(403).json({ err: "What the fuck are you doing?" })
-      : ctr == 2
-      ? res.redirect("/logout?id=" + req.user.id)
-      : res.redirect("/lockdown");
-  } else {
-    next();
-  }
-}
-
-function checkNoViolation(req, res, next) {
-  // create regex
-  let properties = /(icon|sender|message)/g;
-  let values =
-    /\s?\S?(<(.*)?\w*>)|\s?\S?(const|var|let)|[=|=>]|(fn|func|function)|[\(|\)]/g;
+  let values = /\s?\S?(<(.*)?\w*>)|\s?\S?(const|var|let)|[=|=>]|(fn|func|function)|[\(|\)]/g;
   // review the query object's properties
   if (
     Object.keys(req.query).length > 0 &&
@@ -403,8 +370,9 @@ function checkNoViolation(req, res, next) {
       ? res.status(403).json({ err: "Data not authorized" })
       : ctr == 2
       ? res.redirect("/logout?id=" + req.user.id)
-      : next();
+      : res.redirect('/lockdown');
   } else {
-    res.redirect("/");
+    next();
   }
 }
+
