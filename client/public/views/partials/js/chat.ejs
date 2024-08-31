@@ -278,7 +278,11 @@
     n.classList.remove('p-lower')
 
     }
-    
+    window.ontouchstart = e => {
+      time.classList.remove('time-piece-hover')
+    p.classList.remove('p-lower')
+    n.classList.remove('p-lower')
+    }
     img.height = "45";
     img.width = "45";
     img.style = "border-radius:50%";

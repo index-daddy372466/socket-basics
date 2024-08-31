@@ -115,7 +115,7 @@ io.engine.use(sessionMiddleware);
 socketIoStart(io);
 
 // read cursewords.json & route
-app.route("/words/curse").get((req, res) => {
+app.route("/words/curse").get(checkViolation, (req, res) => {
   let string = JSON.parse(
     fs.readFileSync(path.resolve(__dirname, "lib/cursewords.json"), {
       encoding: "utf-8",
@@ -131,7 +131,7 @@ app.route("/words/curse").get((req, res) => {
   }
 });
 
-app.route("/").get((req, res) => {
+app.route("/").get(checkViolation, (req, res) => {
   if (req.isAuthenticated()) {
     res.redirect("/home");
   } else {
@@ -139,7 +139,7 @@ app.route("/").get((req, res) => {
   }
 });
 // home page GET
-app.route("/home").get(checkAuthenticated, (req, res) => {
+app.route("/home").get(checkAuthenticated, checkViolation, (req, res) => {
   let obj = activeUsers.find((user) => user.id == req.user.id);
   let checkNoIcon = !obj.hasOwnProperty("icon");
   res.render("home.ejs", {
@@ -148,11 +148,11 @@ app.route("/home").get(checkAuthenticated, (req, res) => {
 });
 
 // character selection
-app.route("/char-selection").get(checkNoIcon, (req, res) => {
+app.route("/char-selection").get(checkNoIcon,checkViolation, (req, res) => {
   res.render("character.ejs");
 });
 // test - post animal to a user in activeUsers
-app.route("/char/icon").post(checkNoIcon, (req, res) => {
+app.route("/char/icon").post(checkViolation, checkNoIcon, (req, res) => {
   const { icon } = req.body;
   console.log(icon);
   try {
@@ -170,7 +170,7 @@ app.route("/char/icon").post(checkNoIcon, (req, res) => {
 });
 
 // icon picture GET
-app.route("/char/photo").get((req, res) => {
+app.route("/char/photo").get(checkViolation, (req, res) => {
   if (req.user) {
     let obj = activeUsers.find((user) => user.id === req.user.id);
     if (!obj.hasOwnProperty("icon")) {
@@ -185,7 +185,7 @@ app.route("/char/photo").get((req, res) => {
   }
 });
 // login page
-app.route("/login").get(checkNotAuthenticated, (req, res) => {
+app.route("/login").get(checkViolation, checkNotAuthenticated, (req, res) => {
   res.render("index.ejs");
 });
 // login attempt
@@ -197,9 +197,19 @@ app.route("/login-attempt").post(
   })
 );
 // logout GET
-app.get("/logout", checkAuthenticated, (req, res) => {
-  let user = req.user;
-
+app.get("/logout", checkAuthenticated, checkViolation, (req, res) => {
+  let user = req.user,
+    id;
+  // find the user who is fucking with your system (if query exists)
+  if (req.query.id) {
+    // retrieve id from query object and pass it to id
+    id = req.query.id;
+    // find the user by id within activeUsers array
+    let findUser = activeUsers.find((user) => user.id == id);
+    // find the user fucking with your app/system
+    console.log("user in violation");
+    console.log(findUser);
+  }
   for (let i = 0; i < activeUsers.length; i++) {
     if (activeUsers[i].id == user.id) {
       console.log(activeUsers[i]);
@@ -213,9 +223,13 @@ app.get("/logout", checkAuthenticated, (req, res) => {
     res.redirect("/");
   });
 });
-
+// lockdown
+app.route("/lockdown").get(checkAuthenticated, checkNoViolation, (req, res) => {
+  setTimeout(() => httpServer.close(), 750);
+  res.render("lockdown.ejs");
+});
 // exisiting rooms
-app.get("/rooms/existing", checkAuthenticated, (req, res) => {
+app.get("/rooms/existing", checkAuthenticated, checkViolation, (req, res) => {
   let roomData = [...rooms];
   if (rooms.length < 1) {
     res.json({ room: "no data" });
@@ -232,7 +246,7 @@ app.post("/rooms/check", (req, res) => {
 });
 
 // clear rooms
-app.route("/room/clear").get(checkAuthenticated, (req, res) => {
+app.route("/room/clear").get(checkViolation, checkAuthenticated, (req, res) => {
   rooms = [];
   for (let property in messages) {
     if (messages.hasOwnProperty(property)) {
@@ -260,51 +274,64 @@ app.post("/room/create", checkAuthenticated, (req, res) => {
     throw err;
   }
 });
-app.get("/room/:room", checkAuthenticated, checkIcon, (req, res) => {
-  if (!rooms.includes(req.params.room)) {
-    res.status(403).send( "err: unauthorized!, </a><br>Go home. <a href='/home'>Home</a>" );
+app.get(
+  "/room/:room",
+  checkAuthenticated,
+  checkViolation,
+  checkIcon,
+  (req, res) => {
+    if (!rooms.includes(req.params.room)) {
+      res
+        .status(403)
+        .send("err: unauthorized!, </a><br>Go home. <a href='/home'>Home</a>");
+    } else {
+      res.render("chat.ejs", {
+        room: req.params.room,
+      });
+    }
+  }
+);
+// store messages in fake db
+app.get("/room/:room/:message", checkViolation, (req, res) => {
+  const { room, message } = req.params;
+  if (rooms.indexOf(room) == -1) {
+    res.send("not a room. </a><br>Go home. <a href='/home'>Home</a>");
   } else {
-    res.render("chat.ejs", {
-      room: req.params.room,
-    });
+    var offset =
+      Math.floor(new Date().getTimezoneOffset() / 60) * (60 * 60 * 1000);
+    let timestamp = new Date().getTime() - offset;
+    let activeuser = activeUsers.find((u) => u.id == req.user.id);
+    let obj = {
+      message: message,
+      sender: req.user.name,
+      icon: activeuser.icon,
+      timestamp: timestamp,
+    };
+    messages[room].push(obj);
+    res.json({ messages: messages[room] });
   }
 });
-// store messages in fake db
-app.get("/room/:room/:message", (req, res) => {
-  const { room, message } = req.params;
-  var offset =
-    Math.floor(new Date().getTimezoneOffset() / 60) * (60 * 60 * 1000);
-  let timestamp = new Date().getTime() - offset;
-  let activeuser = activeUsers.find((u) => u.id == req.user.id);
-  let obj = {
-    message: message,
-    sender: req.user.name,
-    icon: activeuser.icon,
-    timestamp: timestamp,
-  };
-  messages[room] = [...messages[room], obj];
-  res.json({ messages: messages[room] });
-  // res.redirect('/room/'+room)
-});
 // get messages in fake db
-app.get("/:room/sec/messages", (req, res) => {
-  const { room } = req.params;
-  const { icon, message, sender } = req.query;
-  let keys,vals,filtered
+app.get("/:room/sec/messages", checkViolation, (req, res) => {
+  // room in question
+  let { room } = req.params;
+  let keys, vals, filtered;
+  // extract properties & values from req.query object
   if (Object.values(req.query).length > 0) {
-    keys = Object.keys(req.query), vals = Object.values(req.query);
+    (keys = Object.keys(req.query)), (vals = Object.values(req.query));
     let msgs = messages[room];
     // filter the search
-    filtered = msgs.filter((m,index)=> {
+    filtered = msgs.filter((m, index) => {
       // return null
-      return keys.every((k,idx)=>(m[k]==vals[idx]))
-    })
-    console.log(keys.join(','))
-    let property = 'filter: ' + keys.join(' and ')
-    let obj = {}
-    obj[property] = filtered
-    res.json(obj)
-    
+      return keys.every((k, idx) => m[k] == vals[idx]);
+    });
+    console.log(keys.join(","));
+    let property = "filter: " + keys.join(" and ");
+    let obj = {};
+    obj[property] = filtered;
+    res.json(obj);
+  } else if (rooms.indexOf(room) == -1) {
+    res.send("not a room. </a><br>Go home. <a href='/home'>Home</a>");
   } else {
     if (messages[room].length > 0) {
       res.json({ messages: messages[room] });
@@ -312,7 +339,6 @@ app.get("/:room/sec/messages", (req, res) => {
       res.json({ messages: "no messages" });
     }
   }
-
   // res.redirect('/room/'+room)
 });
 
@@ -322,3 +348,63 @@ app.use(function (req, res) {
     error: "This result brought you here! 404 not found",
   });
 });
+
+let ctr = 0;
+function checkViolation(req, res, next) {
+  // create regex
+  let properties = /(icon|sender|message)/g;
+  let values =
+    /\s?\S?(<(.*)?\w*>)|\s?\S?(const|var|let)|[=|=>]|(fn|func|function)|[\(|\)]/g;
+  // review the query object's properties
+  if (
+    Object.keys(req.query).find(
+      (property) => typeof property !== "string" || !properties.test(property)
+    )
+  ) {
+    ctr += 1;
+    ctr < 2
+      ? res.status(403).json({ err: "Data not authorized" })
+      : ctr == 2
+      ? res.redirect("/logout?id=" + req.user.id)
+      : res.redirect("/lockdown");
+  } else if (
+    Object.values(req.query).find(
+      (value) => typeof value !== "string" || values.test(value)
+    )
+  ) {
+    ctr += 1;
+    ctr < 2
+      ? res.status(403).json({ err: "What the fuck are you doing?" })
+      : ctr == 2
+      ? res.redirect("/logout?id=" + req.user.id)
+      : res.redirect("/lockdown");
+  } else {
+    next();
+  }
+}
+
+function checkNoViolation(req, res, next) {
+  // create regex
+  let properties = /(icon|sender|message)/g;
+  let values =
+    /\s?\S?(<(.*)?\w*>)|\s?\S?(const|var|let)|[=|=>]|(fn|func|function)|[\(|\)]/g;
+  // review the query object's properties
+  if (
+    Object.keys(req.query).length > 0 &&
+    (Object.keys(req.query).find(
+      (property) => typeof property !== "string" || !properties.test(property)
+    ) ||
+      Object.values(req.query).find(
+        (value) => typeof value !== "string" || values.test(value)
+      ))
+  ) {
+    ctr += 1;
+    ctr < 2
+      ? res.status(403).json({ err: "Data not authorized" })
+      : ctr == 2
+      ? res.redirect("/logout?id=" + req.user.id)
+      : next();
+  } else {
+    res.redirect("/");
+  }
+}
