@@ -6,6 +6,7 @@ const express = require("express"),
   httpServer = app.listen(PORT, () => {
     console.log(`listening on port ${PORT}`);
   }),
+  habits = require('./lib/habits.js'),
   { Server } = require("socket.io"),
   io = new Server(httpServer);
 (AXI = !process.env._AXI_ ? 4448 : process.env._AXI_),
@@ -132,6 +133,7 @@ app.route("/words/curse").get(checkViolation, (req, res) => {
 });
 
 app.route("/").get(checkViolation, (req, res) => {
+  console.log(habits)
   if (req.isAuthenticated()) {
     res.redirect("/home");
   } else {
@@ -140,6 +142,8 @@ app.route("/").get(checkViolation, (req, res) => {
 });
 // home page GET
 app.route("/home").get(checkAuthenticated, checkViolation, (req, res) => {
+  habits.home++
+  console.log(habits)
   let obj = activeUsers.find((user) => user.id == req.user.id);
   let checkNoIcon = !obj.hasOwnProperty("icon");
   res.render("home.ejs", {
@@ -149,6 +153,8 @@ app.route("/home").get(checkAuthenticated, checkViolation, (req, res) => {
 
 // character selection
 app.route("/char-selection").get(checkNoIcon,checkViolation, (req, res) => {
+  habits.character++
+  console.log(habits)
   res.render("character.ejs");
 });
 // test - post animal to a user in activeUsers
@@ -171,6 +177,8 @@ app.route("/char/icon").post(checkViolation, checkNoIcon, (req, res) => {
 
 // icon picture GET
 app.route("/char/photo").get(checkViolation, (req, res) => {
+  habits.character++
+  console.log(habits)
   if (req.user) {
     let obj = activeUsers.find((user) => user.id === req.user.id);
     if (!obj.hasOwnProperty("icon")) {
@@ -186,7 +194,7 @@ app.route("/char/photo").get(checkViolation, (req, res) => {
 });
 // login page
 app.route("/login").get(checkViolation, checkNotAuthenticated, (req, res) => {
-  if (req.query.id) {
+  if (req.query.id && (req.query.id===req.user.id)) {
     // retrieve id from query object and pass it to id
     id = req.query.id;
     // find the user by id within activeUsers array
@@ -211,6 +219,8 @@ app.get("/logout", checkAuthenticated, (req, res) => {
     id;
   // find the user who is fucking with your system (if query exists)
   if (req.query.id) {
+    habits.violation.user = req.user.name
+    console.log(habits)
     // retrieve id from query object and pass it to id
     id = req.query.id;
     // find the user by id within activeUsers array
@@ -237,7 +247,19 @@ app.route("/lock1").get(checkNotAuthenticated,checkViolation,(req, res) => {
   setTimeout(() => httpServer.close(), 750);
   res.render("lockdown.ejs");
 });
-app.route("/lock2").get(checkAuthenticated,checkViolation,(req, res) => {
+app.route("/lock2").get(checkAuthenticated,(req, res) => {
+  // find the user who is fucking with your system (if query exists)
+  if (req.query.id && (req.query.id===req.user.id)) {
+    habits.violation.user = req.user.name
+    console.log(habits)
+    // retrieve id from query object and pass it to id
+    id = req.query.id;
+    // find the user by id within activeUsers array
+    let findUser = activeUsers.find((user) => user.id == id);
+    // find the user fucking with your app/system
+    console.log("user in violation");
+    console.log(findUser);
+  }
   setTimeout(() => httpServer.close(), 750);
   res.render("lockdown.ejs");
 });
@@ -260,6 +282,8 @@ app.post("/rooms/check", (req, res) => {
 
 // clear rooms
 app.route("/room/clear").get(checkViolation, checkAuthenticated, (req, res) => {
+  habits.clear++
+  console.log(habits)
   rooms = [];
   for (let property in messages) {
     if (messages.hasOwnProperty(property)) {
@@ -269,7 +293,9 @@ app.route("/room/clear").get(checkViolation, checkAuthenticated, (req, res) => {
   res.redirect("/home");
 });
 // create a room
-app.post("/room/create", checkViolation, checkAuthenticated, (req, res) => {
+app.post("/room/create", checkAuthenticated, checkViolation, (req, res) => {
+  habits.create++
+  console.log(habits)
   console.log(req.body.room);
   let { room } = req.body;
   messages[room] = [];
@@ -293,6 +319,8 @@ app.get(
   checkViolation,
   checkIcon,
   (req, res) => {
+    habits.join++
+    console.log(habits)
     if (!rooms.includes(req.params.room)) {
       res
         .status(403)
@@ -306,6 +334,8 @@ app.get(
 );
 // store messages in fake db
 app.get("/room/:room/:message", checkViolation, (req, res) => {
+  habits.messagesall++
+  console.log(habits)
   const { room, message } = req.params;
   if (rooms.indexOf(room) == -1) {
     res.send("not a room. </a><br>Go home. <a href='/home'>Home</a>");
@@ -326,6 +356,7 @@ app.get("/room/:room/:message", checkViolation, (req, res) => {
 });
 // get messages in fake db
 app.get("/:room/sec/messages", checkViolation, (req, res) => {
+  habits.messagesall++
   // room in question
   let { room } = req.params;
   let keys, vals, filtered;
@@ -338,10 +369,11 @@ app.get("/:room/sec/messages", checkViolation, (req, res) => {
       // return null
       return keys.every((k, idx) => m[k] == vals[idx]);
     });
-    console.log(keys.join(","));
     let property = "filter: " + keys.join(" and ");
     let obj = {};
     obj[property] = filtered;
+    habits.messagesfiltered++
+    console.log(habits)
     res.json(obj);
   } else if (rooms.indexOf(room) == -1) {
     res.send("not a room. </a><br>Go home. <a href='/home'>Home</a>");
@@ -378,6 +410,7 @@ function checkViolation(req, res, next) {
         (value) => typeof value !== "string" || values.test(value)
       ))
   ) {
+    habits.violation.attempts++
     ctr += 1;
     ctr < 2
       ? res.status(403).json({ err: "Data not authorized" })
@@ -387,7 +420,7 @@ function checkViolation(req, res, next) {
       ? res.status(403).json({ err: "What the FUCK are you doing? Stop" })
       : ctr == 4 
       ? (req.user ? res.redirect("/logout?id=" + req.user.id) : res.redirect('/login'))
-      : (req.user ? res.redirect('/lock2') : res.redirect('/lock1'))
+      : (req.user ? res.redirect('/lock2?id=' + req.user.id) : res.redirect('/lock1'))
   } else {
     next();
   }
