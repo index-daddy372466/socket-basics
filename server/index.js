@@ -411,6 +411,7 @@ function checkViolation(req, res, next) {
       ))
   ) {
     habits.violation.attempts++
+    console.log(habits.violation)
     ctr += 1;
     ctr < 2
       ? res.status(403).json({ err: "Data not authorized" })
