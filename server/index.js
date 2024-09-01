@@ -111,7 +111,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 io.engine.use(sessionMiddleware);
-
+app.use(leaveChat)
 // socket io
 socketIoStart(io);
 
@@ -422,8 +422,32 @@ function checkViolation(req, res, next) {
       : ctr == 4 
       ? (req.user ? res.redirect("/logout?id=" + req.user.id) : res.redirect('/login'))
       : (req.user ? res.redirect('/lock2?id=' + req.user.id) : res.redirect('/lock1'))
-  } else {
+    }
+    else if (/^\/lock2$/.test(req.path) && req.user){
+      res.redirect('/logout')
+    }
+    else if ((/^\/lock1$/.test(req.path) && !req.user)) {
+      res.redirect('/login')
+  }
+  else {
     next();
   }
+}
+
+let endpoints = []
+// middleware to check if a user is going to home from leave (chat)
+function leaveChat(req,res,next){
+  // capture endpoints into array
+endpoints.push(req.path)
+if(endpoints.length >= 3){
+  endpoints.shift();  
+}
+// if([ '/clothes/sec/messages', '/home' ])
+if(/\/sec\/messages$/g.test(endpoints[0]) && /^\/home$/.test(endpoints[1])){
+  habits.leave++
+  console.log(habits)
+}
+console.log(endpoints)
+next();
 }
 
