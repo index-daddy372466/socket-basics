@@ -5,24 +5,22 @@ module.exports = habits = {
   create:0,
   // home page hits
   home: 0,
-  // room hits
-  room: 0,
   // leaving room hits
   leave: 0,
-  // create room hits
-  join: 0,
   // join room hits
-  clear: 0,
+  join: 0,
   // clear room hits
+  clear: 0,
+
   violation:{
     attempts:0,
     user:undefined,
   },
   // violation hits
-  sendmessage: 0,
-  // send message hits
+  sendmessage: 0, 
+  // send message hits (post)
   messagesall: 0,
-  //read all messages hits
+  //all messages hits (read)
   messagesfiltered: 0,
   // filtering through messages hits
   character: 0,

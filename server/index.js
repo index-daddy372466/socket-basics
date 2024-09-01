@@ -334,7 +334,7 @@ app.get(
 );
 // store messages in fake db
 app.get("/room/:room/:message", checkViolation, (req, res) => {
-  habits.messagesall++
+  habits.sendmessage++
   console.log(habits)
   const { room, message } = req.params;
   if (rooms.indexOf(room) == -1) {
