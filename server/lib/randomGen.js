@@ -1,13 +1,11 @@
-module.exports = randomGen = (l) => {
-    let randoms = [];
-    let salt = 11;
-    let chars = [...new Array(127).fill("")]
-      .map((x, i) => String.fromCharCode(i + [30,60,90,120,150,180,210,240,270,300][Math.floor(Math.random()*10)]))
-      .filter((j, idx) => idx > 32 || !/s*/g.test(j));
-    let gen = () => chars[Math.floor(Math.random() * chars.length)];
-    while (salt > l) {
-      randoms.unshift(gen());
-      salt--;
-    }
-    return randoms.join``;
-  };
+const { createHash } = require('crypto')
+
+module.exports = function createId(id){
+  // const cipher = createCipheriv("aes-256-gcm", key, salt);
+  // const encryptId = cipher.update(id, "utf-8", "hex") + cipher.final("hex");
+  // return encryptId;
+  const hash = createHash('sha1').update(id).digest('hex')
+  // console.log('hash')
+
+  return hash
+}; 

@@ -46,7 +46,7 @@ const checkIcon = (req, res, next) => {
   if (req.user) {
     console.log(activeUsers);
     console.log("checking icon");
-    console.log(req.user);
+    // console.log(req.user);
     let getActive = activeUsers.filter((x) => x.id == req.user.id);
     console.log(getActive);
     if (getActive[0].hasOwnProperty("icon")) {
@@ -112,6 +112,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 io.engine.use(sessionMiddleware);
 app.use(leaveChat)
+app.use((req,res,next)=>{
+  console.log(activeUsers)
+  next()
+})
 // socket io
 socketIoStart(io);
 

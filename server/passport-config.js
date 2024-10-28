@@ -1,10 +1,11 @@
 const LocalStrategy = require("passport-local").Strategy;
-const randomGen = require("./lib/randomGen.js");
+const createId = require("./lib/randomGen.js");
 function initialize(passport, activeUsers) {
   // get user by id
   const getUserById = (id) => {
     return activeUsers.find((user) => user.id === id); // returns user object
   };
+  
   passport.use(
     new LocalStrategy(
       {
@@ -22,7 +23,10 @@ function initialize(passport, activeUsers) {
             console.log("Username currently exists");
             done(null, false, { message: "username currently exists" });
           } else {
-            let hash = randomGen(1);
+            const date_id = new Date().getTime().toString()
+            // console.log(date_id)
+            let hash = createId(date_id);
+            console.log(hash)
             const payload = { id: hash, name: username };
             activeUsers.push(payload)
             console.log("login success");
